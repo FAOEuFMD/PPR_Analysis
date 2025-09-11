@@ -409,26 +409,27 @@ with tabs[1]:
                 region_table[col] = region_table[col].map(lambda x: f"{int(x):,}")
     st.dataframe(region_table)
 
-        st.subheader("Subregion Breakdown")
-        country_options = sorted(subregions_df["Country"].unique())
-        selected_country = st.selectbox("Select Country", country_options)
-        subregion_data = subregions_df[subregions_df["Country"] == selected_country]
-        subregion_table = []
-        for idx, row in subregion_data.iterrows():
-            pop = row["Population"] if pd.notnull(row["Population"]) else 0
-            area = row["Area"] if "Area" in row and pd.notnull(row["Area"]) else None
-            species = str(row["Species"]).capitalize() if "Species" in row else "Unknown"
+with tabs[2]:
+    st.subheader("Subregion Breakdown")
+    country_options = sorted(subregions_df["Country"].unique())
+    selected_country = st.selectbox("Select Country", country_options)
+    subregion_data = subregions_df[subregions_df["Country"] == selected_country]
+    subregion_table = []
+    for idx, row in subregion_data.iterrows():
+        area = row["ADM1_Name"] if "ADM1_Name" in row and pd.notnull(row["ADM1_Name"]) else None
+        psi = row["Political_Stability_Index"] if "Political_Stability_Index" in row and pd.notnull(row["Political_Stability_Index"]) else 0.3
+        cost_per_animal = get_country_cost(selected_country)
+        political_mult = get_political_mult(psi)
+        # Goats row
+        if "Goats" in row and pd.notnull(row["Goats"]):
+            pop_goats = row["Goats"]
             coverage_frac = coverage / 100.0
-            vaccinated_y1 = vaccinated_initial(pop, coverage_frac)
+            vaccinated_y1 = vaccinated_initial(pop_goats, coverage_frac)
             doses_y1 = doses_required(vaccinated_y1, wastage)
-            cost_per_animal = get_country_cost(selected_country)
             cost_before_adj_val = cost_before_adj(doses_y1, cost_per_animal)
-            psi = row["Political_Stability_Index"] if "Political_Stability_Index" in row and pd.notnull(row["Political_Stability_Index"]) else 0.3
-            political_mult = get_political_mult(psi)
             total_cost_y1 = total_cost(cost_before_adj_val, political_mult, delivery_mult)
             vaccines_wasted_y1 = doses_y1 - vaccinated_y1
-            newborn_rate = newborn_goats if species in ["Goat", "Goats"] else newborn_sheep
-            newborn_count = vaccinated_y1 * newborn_rate
+            newborn_count = vaccinated_y1 * newborn_goats
             second_year_coverage_frac = second_year_coverage_val / 100.0
             vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_frac)
             doses_y2 = doses_required(vaccinated_y2, wastage)
@@ -436,29 +437,61 @@ with tabs[1]:
             total_cost_y2 = total_cost(cost_before_adj_val_y2, political_mult, delivery_mult)
             vaccines_wasted_y2 = doses_y2 - vaccinated_y2
             subregion_table.append({
-                "Subregion": row["Subregion"] if "Subregion" in row else idx,
-                "Area": area,
-                "Population": int(pop),
-                "Species": species,
-                "Goats Y1": int(vaccinated_y1) if species in ["Goat", "Goats"] else 0,
-                "Sheep Y1": int(vaccinated_y1) if species in ["Sheep", "Sheeps"] else 0,
+                "Subregion": area,
+                "Species": "Goat",
+                "Population": int(pop_goats),
+                "Goats Y1": int(vaccinated_y1),
+                "Sheep Y1": 0,
                 "Total Y1": int(vaccinated_y1),
                 "Cost Y1": f"${total_cost_y1:,.2f}",
                 "Doses Y1": int(doses_y1),
                 "Wasted Y1": int(vaccines_wasted_y1),
-                "Goats Y2": int(vaccinated_y2) if species in ["Goat", "Goats"] else 0,
-                "Sheep Y2": int(vaccinated_y2) if species in ["Sheep", "Sheeps"] else 0,
+                "Goats Y2": int(vaccinated_y2),
+                "Sheep Y2": 0,
                 "Total Y2": int(vaccinated_y2),
                 "Cost Y2": f"${total_cost_y2:,.2f}",
                 "Doses Y2": int(doses_y2),
                 "Wasted Y2": int(vaccines_wasted_y2),
             })
-        subregion_table_df = pd.DataFrame(subregion_table)
-        # Format columns
-        for col in ["Area", "Population", "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
-            if col in subregion_table_df:
-                subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
-        st.dataframe(subregion_table_df)
+        # Sheep row
+        if "Sheep" in row and pd.notnull(row["Sheep"]):
+            pop_sheep = row["Sheep"]
+            coverage_frac = coverage / 100.0
+            vaccinated_y1 = vaccinated_initial(pop_sheep, coverage_frac)
+            doses_y1 = doses_required(vaccinated_y1, wastage)
+            cost_before_adj_val = cost_before_adj(doses_y1, cost_per_animal)
+            total_cost_y1 = total_cost(cost_before_adj_val, political_mult, delivery_mult)
+            vaccines_wasted_y1 = doses_y1 - vaccinated_y1
+            newborn_count = vaccinated_y1 * newborn_sheep
+            second_year_coverage_frac = second_year_coverage_val / 100.0
+            vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_frac)
+            doses_y2 = doses_required(vaccinated_y2, wastage)
+            cost_before_adj_val_y2 = cost_before_adj(doses_y2, cost_per_animal)
+            total_cost_y2 = total_cost(cost_before_adj_val_y2, political_mult, delivery_mult)
+            vaccines_wasted_y2 = doses_y2 - vaccinated_y2
+            subregion_table.append({
+                "Subregion": area,
+                "Species": "Sheep",
+                "Population": int(pop_sheep),
+                "Goats Y1": 0,
+                "Sheep Y1": int(vaccinated_y1),
+                "Total Y1": int(vaccinated_y1),
+                "Cost Y1": f"${total_cost_y1:,.2f}",
+                "Doses Y1": int(doses_y1),
+                "Wasted Y1": int(vaccines_wasted_y1),
+                "Goats Y2": 0,
+                "Sheep Y2": int(vaccinated_y2),
+                "Total Y2": int(vaccinated_y2),
+                "Cost Y2": f"${total_cost_y2:,.2f}",
+                "Doses Y2": int(doses_y2),
+                "Wasted Y2": int(vaccines_wasted_y2),
+            })
+    subregion_table_df = pd.DataFrame(subregion_table)
+    # Format columns
+    for col in ["Area", "Population", "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
+        if col in subregion_table_df:
+            subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
+    st.dataframe(subregion_table_df)
     st.subheader("Breakdown by Country")
     # Build country breakdown table
     country_table = []

@@ -59,27 +59,15 @@ def validate_national(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def validate_subregions(df: pd.DataFrame) -> pd.DataFrame:
-    # Accept 'ADM1_Name' as ADM1 identifier
-    if "ADM1_Name" in df.columns and "ADM1" not in df.columns:
-        df = df.rename(columns={"ADM1_Name": "ADM1"})
-        audit_log.append("Mapped 'ADM1_Name' to 'ADM1'.")
-    # Accept 'Specie' and map to 'Species'
-    if "Specie" in df.columns and "Species" not in df.columns:
-        df = df.rename(columns={"Specie": "Species"})
-        audit_log.append("Mapped 'Specie' to 'Species'.")
-    # Use 'Density' and 'VADEMOS National Forecasted Value' for allocation
-    required_cols = ["Country", "ADM1", "Species", "Density", "VADEMOS National Forecasted Value"]
+    
+    required_cols = ["Country", "Subregion", "Specie", "100%_Coverage"]
+    # Fill missing columns with default values
     for col in required_cols:
         if col not in df.columns:
-            if col == "Density":
-                df[col] = 1.0
-            elif col == "VADEMOS National Forecasted Value":
-                df[col] = 0
-            else:
-                df[col] = "Unknown"
+            df[col] = "Unknown"
             audit_log.append(f"Missing column '{col}' in Subregions.xlsx. Defaulted.")
-    # Standardize column names for downstream use
-    df = df[[col for col in required_cols if col in df.columns] + [c for c in df.columns if c not in required_cols]]
+    # Only keep required columns
+    df = df[required_cols]
     return df
 
 def main():

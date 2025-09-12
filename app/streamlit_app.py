@@ -6,6 +6,7 @@ Streamlit UI for PPR Eradication Cost Dashboard
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 import sys
 import os
 
@@ -55,38 +56,33 @@ with st.sidebar:
         st.session_state["regional_custom_cost"] = {r["Region"]: r["Average"] for r in costs}
     for row in costs:
         region = row["Region"]
-        min_val = float(f"{row['Minimum']:.2f}")
-        max_val = float(f"{row['Maximum']:.2f}")
+        min_val = 0.0
+        max_val = 2.0
         avg_val = float(f"{row['Average']:.2f}")
-        st.markdown(f"<span style='font-weight:600;font-size:1rem;margin-bottom:0px;'>{region}</span>", unsafe_allow_html=True)
-        cols = st.columns([1, 6, 1])
-        with cols[0]:
-            st.markdown(f"<span style='font-size:0.9rem;font-weight:500;'>Min<br>{min_val:.2f}</span>", unsafe_allow_html=True)
-        with cols[1]:
-            slider_val = st.slider(
-                "",
-                min_value=min_val,
-                max_value=max_val,
-                value=avg_val,
-                step=0.01,
-                key=f"cost_slider_{region}"
-            )
-            st.session_state["regional_custom_cost"][region] = slider_val
-        with cols[2]:
-            st.markdown(f"<span style='font-size:0.9rem;font-weight:500;'>Max<br>{max_val:.2f}</span>", unsafe_allow_html=True)
+        region_stats_text = f"Min: {row['Minimum']:.2f}, Avg: {row['Average']:.2f}, Max: {row['Maximum']:.2f}"
+        st.markdown(f"<span style='font-weight:600;font-size:1rem;margin-bottom:0px;'>{region} <span style='font-size:0.9rem;color:#888;'>({region_stats_text})</span></span>", unsafe_allow_html=True)
+        slider_val = st.slider(
+            "",
+            min_value=min_val,
+            max_value=max_val,
+            value=avg_val,
+            step=0.01,
+            key=f"cost_slider_{region}"
+        )
+        st.session_state["regional_custom_cost"][region] = slider_val
 
     st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Coverage % (First Year)</span>", unsafe_allow_html=True)
     coverage = st.slider("", 0, 100, 80)
 
     st.markdown("---")
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Newborn Estimation Defaults</span>", unsafe_allow_html=True)
-    newborn_goats = st.number_input("Goats (% of initial)", 0.0, 1.0, 0.6)
-    newborn_sheep = st.number_input("Sheep (% of initial)", 0.0, 1.0, 0.4)
+    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Newborn Estimation Defaults (% of initial population)</span>", unsafe_allow_html=True)
+    newborn_goats = st.number_input("Goats (% of initial population)", 0, 100, 60)
+    newborn_sheep = st.number_input("Sheep (% of initial population)", 0, 100, 40)
     st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Coverage in Year 2 (% of newborns)</span>", unsafe_allow_html=True)
     second_year_coverage_val = st.slider("", 0, 100, 100)
 
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Vaccine Wastage %</span>", unsafe_allow_html=True)
-    wastage = st.slider("", 0.0, 0.5, 0.10)
+    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Vaccine Wastage (% of doses)</span>", unsafe_allow_html=True)
+    wastage = st.slider("", 0, 100, 10)
     st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Delivery Channel</span>", unsafe_allow_html=True)
     delivery_channel = st.radio("", ["Public", "Mixed", "Private"])
 
@@ -97,7 +93,7 @@ with st.sidebar:
 
 
     st.markdown("---")
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Political Multiplier Thresholds</span>", unsafe_allow_html=True)
+    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Political Stability Index Multiplier Thresholds</span>", unsafe_allow_html=True)
     thresh_low = st.number_input("Low threshold", 0.0, 1.0, 0.4)
     thresh_high = st.number_input("High threshold", 0.0, 1.0, 0.7)
 
@@ -222,7 +218,7 @@ for idx, row in national_df.iterrows():
     pop = row["Population"] if pd.notnull(row["Population"]) else 0
     coverage_frac = coverage / 100.0
     vaccinated = vaccinated_initial(pop, coverage_frac)
-    doses = doses_required(vaccinated, wastage)
+    doses = doses_required(vaccinated, wastage/100)
     cost_per_animal = get_country_cost(country)
     cost_before_adj_val = cost_before_adj(doses, cost_per_animal)
     psi = row["Political_Stability_Index"] if pd.notnull(row["Political_Stability_Index"]) else 0.3
@@ -246,7 +242,7 @@ for idx, row in national_df.iterrows():
     pop = row["Population"] if pd.notnull(row["Population"]) else 0
     coverage_frac = coverage / 100.0
     vaccinated = vaccinated_initial(pop, coverage_frac)
-    newborn_rate = newborn_goats if species in ["Goat", "Goats"] else newborn_sheep
+    newborn_rate = newborn_goats/100 if species in ["Goat", "Goats"] else newborn_sheep/100
     newborn_count = vaccinated * newborn_rate
     second_year_coverage_frac = second_year_coverage_val / 100.0
     vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_frac)
@@ -407,93 +403,30 @@ with tabs[1]:
                 region_table[col] = region_table[col].map(lambda x: f"${x:,.2f}")
             else:
                 region_table[col] = region_table[col].map(lambda x: f"{int(x):,}")
-    st.dataframe(region_table)
+    st.dataframe(region_table, height=region_table.shape[0]*35+40)
 
-with tabs[2]:
-    st.subheader("Subregion Breakdown")
-    country_options = sorted(subregions_df["Country"].unique())
-    selected_country = st.selectbox("Select Country", country_options)
-    subregion_data = subregions_df[subregions_df["Country"] == selected_country]
-    subregion_table = []
-    for idx, row in subregion_data.iterrows():
-        area = row["ADM1_Name"] if "ADM1_Name" in row and pd.notnull(row["ADM1_Name"]) else None
-        psi = row["Political_Stability_Index"] if "Political_Stability_Index" in row and pd.notnull(row["Political_Stability_Index"]) else 0.3
-        cost_per_animal = get_country_cost(selected_country)
-        political_mult = get_political_mult(psi)
-        # Goats row
-        if "Goats" in row and pd.notnull(row["Goats"]):
-            pop_goats = row["Goats"]
-            coverage_frac = coverage / 100.0
-            vaccinated_y1 = vaccinated_initial(pop_goats, coverage_frac)
-            doses_y1 = doses_required(vaccinated_y1, wastage)
-            cost_before_adj_val = cost_before_adj(doses_y1, cost_per_animal)
-            total_cost_y1 = total_cost(cost_before_adj_val, political_mult, delivery_mult)
-            vaccines_wasted_y1 = doses_y1 - vaccinated_y1
-            newborn_count = vaccinated_y1 * newborn_goats
-            second_year_coverage_frac = second_year_coverage_val / 100.0
-            vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_frac)
-            doses_y2 = doses_required(vaccinated_y2, wastage)
-            cost_before_adj_val_y2 = cost_before_adj(doses_y2, cost_per_animal)
-            total_cost_y2 = total_cost(cost_before_adj_val_y2, political_mult, delivery_mult)
-            vaccines_wasted_y2 = doses_y2 - vaccinated_y2
-            subregion_table.append({
-                "Subregion": area,
-                "Species": "Goat",
-                "Population": int(pop_goats),
-                "Goats Y1": int(vaccinated_y1),
-                "Sheep Y1": 0,
-                "Total Y1": int(vaccinated_y1),
-                "Cost Y1": f"${total_cost_y1:,.2f}",
-                "Doses Y1": int(doses_y1),
-                "Wasted Y1": int(vaccines_wasted_y1),
-                "Goats Y2": int(vaccinated_y2),
-                "Sheep Y2": 0,
-                "Total Y2": int(vaccinated_y2),
-                "Cost Y2": f"${total_cost_y2:,.2f}",
-                "Doses Y2": int(doses_y2),
-                "Wasted Y2": int(vaccines_wasted_y2),
-            })
-        # Sheep row
-        if "Sheep" in row and pd.notnull(row["Sheep"]):
-            pop_sheep = row["Sheep"]
-            coverage_frac = coverage / 100.0
-            vaccinated_y1 = vaccinated_initial(pop_sheep, coverage_frac)
-            doses_y1 = doses_required(vaccinated_y1, wastage)
-            cost_before_adj_val = cost_before_adj(doses_y1, cost_per_animal)
-            total_cost_y1 = total_cost(cost_before_adj_val, political_mult, delivery_mult)
-            vaccines_wasted_y1 = doses_y1 - vaccinated_y1
-            newborn_count = vaccinated_y1 * newborn_sheep
-            second_year_coverage_frac = second_year_coverage_val / 100.0
-            vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_frac)
-            doses_y2 = doses_required(vaccinated_y2, wastage)
-            cost_before_adj_val_y2 = cost_before_adj(doses_y2, cost_per_animal)
-            total_cost_y2 = total_cost(cost_before_adj_val_y2, political_mult, delivery_mult)
-            vaccines_wasted_y2 = doses_y2 - vaccinated_y2
-            subregion_table.append({
-                "Subregion": area,
-                "Species": "Sheep",
-                "Population": int(pop_sheep),
-                "Goats Y1": 0,
-                "Sheep Y1": int(vaccinated_y1),
-                "Total Y1": int(vaccinated_y1),
-                "Cost Y1": f"${total_cost_y1:,.2f}",
-                "Doses Y1": int(doses_y1),
-                "Wasted Y1": int(vaccines_wasted_y1),
-                "Goats Y2": 0,
-                "Sheep Y2": int(vaccinated_y2),
-                "Total Y2": int(vaccinated_y2),
-                "Cost Y2": f"${total_cost_y2:,.2f}",
-                "Doses Y2": int(doses_y2),
-                "Wasted Y2": int(vaccines_wasted_y2),
-            })
-    subregion_table_df = pd.DataFrame(subregion_table)
-    # Format columns
-    for col in ["Area", "Population", "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
-        if col in subregion_table_df:
-            subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
-    st.dataframe(subregion_table_df)
+    # Pie chart of vaccination cost per region
+    import plotly.graph_objects as go
+    pie_labels = region_table["Region"]
+    pie_values_y1 = region_table["Cost Y1"].apply(lambda x: float(str(x).replace('$','').replace(',','')))
+    pie_values_y2 = region_table["Cost Y2"].apply(lambda x: float(str(x).replace('$','').replace(',','')))
+
+    # Use consistent colors for both pies
+    color_sequence = px.colors.qualitative.Plotly[:len(pie_labels)]
+
+    fig = go.Figure()
+    fig.add_trace(go.Pie(labels=pie_labels, values=pie_values_y1, name="Y1", hole=0.3, marker=dict(colors=color_sequence), legendgroup="cost", domain={'x': [0, 0.48]}))
+    fig.add_trace(go.Pie(labels=pie_labels, values=pie_values_y2, name="Y2", hole=0.3, marker=dict(colors=color_sequence), legendgroup="cost", domain={'x': [0.52, 1]}))
+    fig.update_layout(
+        title_text="Vaccination Cost per Region (Y1 vs Y2)",
+        grid={'rows': 1, 'columns': 2},
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
+    )
+    fig.update_traces(textinfo="label+percent", pull=[0.02]*len(pie_labels))
+    st.plotly_chart(fig, use_container_width=True)
     st.subheader("Breakdown by Country")
-    # Build country breakdown table
+# Build country breakdown table
     country_table = []
     for country, stats in country_stats.items():
         country_table.append({
@@ -512,8 +445,78 @@ with tabs[2]:
             "Wasted Y2": int(stats['Y2']['wasted']),
         })
     country_table_df = pd.DataFrame(country_table)
-    st.dataframe(country_table_df)
+    st.dataframe(country_table_df, height=country_table_df.shape[0]*35+40)
 
+with tabs[2]:
+    st.subheader("Subregion Breakdown")
+    country_options = sorted(subregions_df["Country"].unique())
+    selected_country = st.selectbox("Select Country", country_options)
+    subregion_data = subregions_df[subregions_df["Country"] == selected_country]
+    subregion_table = []
+    for idx, row in subregion_data.iterrows():
+        subregion = row["Subregion"] if "Subregion" in row and pd.notnull(row["Subregion"]) else None
+        specie = row["Specie"] if "Specie" in row and pd.notnull(row["Specie"]) else None
+        population = row["100%_Coverage"] if "100%_Coverage" in row and pd.notnull(row["100%_Coverage"]) else 0
+        psi = 0.3  # Default, can be updated if available
+        cost_per_animal = get_country_cost(selected_country)
+        political_mult = get_political_mult(psi)
+        coverage_frac = coverage / 100.0
+        # Calculations based on specie
+        goats_y1 = sheep_y1 = goats_y2 = sheep_y2 = doses_y1 = doses_y2 = cost_y1 = cost_y2 = wasted_y1 = wasted_y2 = 0
+        if specie and "goat" in specie.lower():
+            vaccinated_y1 = vaccinated_initial(population, coverage_frac)
+            doses_y1 = doses_required(vaccinated_y1, wastage/100)
+            cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
+            cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
+            wasted_y1 = doses_y1 - vaccinated_y1
+            newborn_count = vaccinated_y1 * (newborn_goats/100)
+            vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
+            doses_y2 = doses_required(vaccinated_y2, wastage/100)
+            cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
+            cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
+            wasted_y2 = doses_y2 - vaccinated_y2
+            goats_y1 = vaccinated_y1
+            goats_y2 = vaccinated_y2
+        elif specie and "sheep" in specie.lower():
+            vaccinated_y1 = vaccinated_initial(population, coverage_frac)
+            doses_y1 = doses_required(vaccinated_y1, wastage/100)
+            cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
+            cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
+            wasted_y1 = doses_y1 - vaccinated_y1
+            newborn_count = vaccinated_y1 * (newborn_sheep/100)
+            vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
+            doses_y2 = doses_required(vaccinated_y2, wastage/100)
+            cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
+            cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
+            wasted_y2 = doses_y2 - vaccinated_y2
+            sheep_y1 = vaccinated_y1
+            sheep_y2 = vaccinated_y2
+        # Add row for each subregion/specie
+        subregion_table.append({
+            "Subregion": subregion,
+            "Specie": specie,
+            "Population": int(population),
+            "Goats Y1": int(goats_y1),
+            "Sheep Y1": int(sheep_y1),
+            "Total Y1": int(goats_y1 + sheep_y1),
+            "Cost Y1": f"${cost_y1:,.2f}",
+            "Doses Y1": int(doses_y1),
+            "Wasted Y1": int(wasted_y1),
+            "Goats Y2": int(goats_y2),
+            "Sheep Y2": int(sheep_y2),
+            "Total Y2": int(goats_y2 + sheep_y2),
+            "Cost Y2": f"${cost_y2:,.2f}",
+            "Doses Y2": int(doses_y2),
+            "Wasted Y2": int(wasted_y2),
+        })
+    subregion_table_df = pd.DataFrame(subregion_table)
+    # Format columns
+    for col in ["Area", "Population", "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
+        if col in subregion_table_df:
+            subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
+    st.dataframe(subregion_table_df)
+    
+    
     with tabs[4]:
         st.subheader("Methodology & Data Sources")
         st.markdown("### Methodology")

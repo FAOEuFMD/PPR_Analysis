@@ -1,85 +1,104 @@
-# Continental PPR Eradication Cost Dashboard
 
-A professional, production-ready Streamlit dashboard for calculating the cost of continental PPR eradication by vaccination across Africa. Supports scenario testing, editing defaults, aggregated totals (Africa/region/country/subregion), and downloadable reports/charts.
+# PPR Vaccination Cost Analysis Dashboard
+
+## Overview
+This Streamlit dashboard estimates the cost of continental PPR (Peste des Petits Ruminants) eradication by vaccination across Africa. It allows users to test scenarios, edit default parameters, view breakdowns by region/country/subregion, and export results.
 
 ## Features
-- Macro-style scenario calculator with editable parameters
-- Aggregated results at continent, region, country, and subregion levels
-- Scenario builder and comparison
-- Downloadable CSV/PDF reports and charts
-- Professional FAO/WOAH-style UI
-- Data validation, audit logging, and traceability
+- **Scenario Testing:** Adjust coverage, newborn rates, wastage, delivery channel, and cost multipliers.
+- **Editable Defaults:** All key parameters are adjustable in the sidebar.
+- **Aggregated Totals:** View results for Africa, regions, countries, and subregions.
+- **Breakdown Tables:** Detailed tables for regions, countries, and subregions.
+- **Interactive Charts:** Pie and bar charts for cost breakdowns.
+- **Markdown Documentation:** Methodology and data sources are included.
+- **Export:** Downloadable reports and charts.
 
-## Layout
-- **Sidebar:** Scenario controls (coverage, cost mode, wastage, delivery channel, political stability, newborn rates, thresholds)
-- **Tabs:**
-  - Overview (KPI cards, high-level charts)
-  - Regions & Countries (tables, drill-down)
-  - Subregions (aggregated results)
-  - Scenario Builder (compare scenarios)
-  - Methodology & Data Sources (summary, links, downloadable appendix)
-  - Data (raw tables, export)
-  - Export / Reports (CSV/PDF)
+## How It Works
+1. **Data Loading:**
+   - National and subregion data are loaded from Excel files.
+   - Only key columns are used: `Country`, `Subregion`, `Specie`, `100%_Coverage`.
+2. **Sidebar Controls:**
+   - Set scenario name, coverage %, newborn estimation, wastage %, delivery channel, and cost multipliers.
+   - Adjust regional vaccination cost sliders (min 0, max 2 USD/animal).
+   - Set Political Stability Index thresholds and multipliers.
+3. **Calculations:**
+   - For each region/country/subregion:
+     - Calculate animals to vaccinate (Year 1) using coverage %.
+     - Adjust for wastage to get doses required.
+     - Estimate cost using selected cost per animal.
+     - Apply political stability and delivery channel multipliers.
+     - For Year 2, estimate newborns and repeat calculations.
+4. **Breakdowns:**
+   - **Overview Tab:** Continent-wide totals and KPIs.
+   - **Regions & Countries Tab:** Region and country breakdowns, pie/bar charts.
+   - **Subregions Tab:** Filter by country, see subregion/specie breakdown.
+   - **Methodology & Data Sources Tab:** Markdown documentation.
+   - **Export Tab:** Download results.
 
-## Setup & Installation
+## Calculation Logic
+- **Year 1:**
+  - `vaccinated = population * coverage %`
+  - `doses = vaccinated / (1 - wastage %)`
+  - `base_cost = doses * cost_per_animal`
+  - `final_cost = base_cost * political_mult * delivery_mult`
+- **Year 2:**
+  - `newborns = vaccinated * newborn %`
+  - Repeat dose and cost calculations for newborns.
+- **Political Stability Multiplier:**
+  - User sets thresholds and multipliers in sidebar.
+  - Lower/negative index = higher multiplier (higher cost).
+- **Delivery Channel Multiplier:**
+  - User selects channel and sets multipliers.
 
-1. Clone the repository:
-   ```sh
-   git clone <your-repo-url>
-   cd ppr_dashboard
+## Data Files
+- `National.xlsx`: Country-level population and stability data.
+- `Subregions.xlsx`: Subregion/specie-level population data.
+- `methodology.md`, `regional_costs.md`, `country_case_costs.md`, `data_sources.md`: Documentation.
+
+## Usage
+1. Install requirements:
+   ```bash
+   pip install streamlit pandas numpy openpyxl plotly
    ```
-2. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-3. Place your data files in the root directory:
-   - `analysis_example.docx`
-   - `methodology.docx`
-   - `costs_influencers.docx`
-   - `National.xlsx`
-   - `Subregions.xlsx`
-
-4. Run the app locally:
-   ```sh
+2. Run the app:
+   ```bash
    streamlit run app/streamlit_app.py
    ```
+3. Adjust parameters in the sidebar and explore results in each tab.
 
-### One-click Streamlit Cloud
-- Upload your repo and data files to Streamlit Cloud
-- Set the main file to `app/streamlit_app.py`
-- Click "Deploy"
+## Customization
+- **Regional Costs:** Set min/avg/max and custom values per region.
+- **Political Stability:** Adjust thresholds and multipliers.
+- **Delivery Channel:** Set multipliers for public, mixed, private.
 
-## Methodology & Data Sources
-- **Population inputs:** FAOSTAT
-- **Forecasting:** VADEMOS tool
-- **Density allocation:** GLW4 (Gridded Livestock of the World)
-- **Cost references:** Key Factors doc, case studies
-- **Internal docs:**
-  - `analysis_example.docx` (output example)
-  - `methodology.docx` (formulas, logic)
-  - `costs_influencers.docx` (cost ranges, references)
-
-## Directory Structure
+## Project Structure
 ```
-ppr_dashboard/
-├─ app/
-│  ├─ streamlit_app.py
-│  ├─ pages/
-│  ├─ components/
-│  └─ styles/
-├─ src/
-│  ├─ data_load.py
-│  ├─ calculations.py
-│  ├─ visuals.py
-│  └─ utils.py
-├─ tests/
-│  ├─ test_calculations.py
-│  └─ test_data_validation.py
-├─ data/
-├─ docs/
-│  └─ methodology_summary.md
-├─ requirements.txt
-├─ Dockerfile
+PPR Analysis/
+├── app/
+│   └── streamlit_app.py
+├── src/
+│   ├── data_load.py
+│   └── calculations.py
+├── data/
+│   ├── National.xlsx
+│   └── Subregions.xlsx
+├── docs/
+│   ├── methodology.md
+│   ├── regional_costs.md
+│   ├── country_case_costs.md
+│   └── data_sources.md
+└── README.md
+```
+
+## Contributing
+- Fork the repo and submit pull requests for improvements.
+- Report issues or feature requests via GitHub.
+
+## License
+This project is provided by FAO EuFMD. See repository for license details.
+
+## Contact
+For questions or support, contact the project owner or open an issue on GitHub.
 ├─ README.md
 └─ .github/workflows/ci.yml
 ```

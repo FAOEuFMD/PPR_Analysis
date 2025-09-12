@@ -94,8 +94,12 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Political Stability Index Multiplier Thresholds</span>", unsafe_allow_html=True)
-    thresh_low = st.number_input("Low threshold", 0.0, 1.0, 0.4)
-    thresh_high = st.number_input("High threshold", 0.0, 1.0, 0.7)
+    st.caption("Lower or negative index = less stable = higher cost.\nThresholds: Below low = high risk, above high = low risk.")
+    thresh_low = st.number_input("Low threshold", -2.5, 2.5, 0.0)
+    thresh_high = st.number_input("High threshold", -2.5, 2.5, 0.7)
+    mult_high_risk = st.number_input("Multiplier for high risk (index < low)", 1.0, 5.0, 2.0)
+    mult_moderate_risk = st.number_input("Multiplier for moderate risk (low ≤ index < high)", 1.0, 5.0, 1.5)
+    mult_low_risk = st.number_input("Multiplier for low risk (index ≥ high)", 1.0, 5.0, 1.0)
 
 
 
@@ -201,11 +205,11 @@ delivery_mult = delivery_mult_map.get(delivery_channel, 1.0)
 # --- Political multiplier thresholds ---
 def get_political_mult(psi):
     if psi < thresh_low:
-        return 1.0
+        return mult_high_risk
     elif psi < thresh_high:
-        return 1.5
+        return mult_moderate_risk
     else:
-        return 2.0
+        return mult_low_risk
 
 # --- First year calculations ---
 
@@ -426,6 +430,9 @@ with tabs[1]:
     fig.update_traces(textinfo="label+percent", pull=[0.02]*len(pie_labels))
     st.plotly_chart(fig, use_container_width=True)
     st.subheader("Breakdown by Country")
+
+
+
 # Build country breakdown table
     country_table = []
     for country, stats in country_stats.items():
@@ -447,6 +454,30 @@ with tabs[1]:
     country_table_df = pd.DataFrame(country_table)
     st.dataframe(country_table_df, height=country_table_df.shape[0]*35+40)
 
+    # Bar charts for country-level vaccination cost (Y1 and Y2)
+    import plotly.graph_objects as go
+    # Sort by largest Y1 cost first
+    country_table_df_sorted = country_table_df.copy()
+    country_table_df_sorted["Cost Y1 Float"] = country_table_df_sorted["Cost Y1"].apply(lambda x: float(str(x).replace('$','').replace(',','')))
+    country_table_df_sorted = country_table_df_sorted.sort_values("Cost Y1 Float", ascending=True)
+    country_names = country_table_df_sorted["Country"]
+    cost_y1 = country_table_df_sorted["Cost Y1 Float"]
+    cost_y2 = country_table_df_sorted["Cost Y2"].apply(lambda x: float(str(x).replace('$','').replace(',','')))
+
+    bar_fig = go.Figure()
+    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y1, name="Y1", marker_color="#636EFA", orientation="h"))
+    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y2, name="Y2", marker_color="#EF553B", orientation="h"))
+    bar_fig.update_layout(
+        barmode="group",
+        title="Vaccination Cost by Country (Y1 vs Y2)",
+        xaxis_title="Cost (USD)",
+        yaxis_title="Country",
+        legend_title="Year",
+        height=700
+    )
+    st.plotly_chart(bar_fig, use_container_width=True)
+
+    
 with tabs[2]:
     st.subheader("Subregion Breakdown")
     country_options = sorted(subregions_df["Country"].unique())
@@ -515,15 +546,59 @@ with tabs[2]:
         if col in subregion_table_df:
             subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
     st.dataframe(subregion_table_df)
-    
-    
-    with tabs[4]:
-        st.subheader("Methodology & Data Sources")
-        st.markdown("### Methodology")
-        st.markdown(docs.get("methodology", "Methodology markdown not found."), unsafe_allow_html=True)
-        st.markdown("### Regional Costs")
-        st.markdown(docs.get("regional_costs", "Regional costs markdown not found."), unsafe_allow_html=True)
-        st.markdown("### Country Case Costs")
-        st.markdown(docs.get("country_case_costs", "Country case costs markdown not found."), unsafe_allow_html=True)
-        st.markdown("### Data Sources")
-        st.markdown(docs.get("data_sources", "Data sources markdown not found."), unsafe_allow_html=True)
+
+with tabs[4]:
+    st.markdown("""
+<style>
+.methodology-title {font-size:1.6rem;font-weight:700;margin-bottom:0.5rem;}
+.methodology-section {font-size:1.1rem;font-weight:600;margin-top:1.2rem;}
+.methodology-table {margin-bottom:1.5rem;}
+</style>
+""", unsafe_allow_html=True)
+    st.markdown('<div class="methodology-title">Methodology Summary</div>', unsafe_allow_html=True)
+    st.markdown('<div class="methodology-section">Approach</div>', unsafe_allow_html=True)
+    st.markdown("""
+The dashboard estimates the cost of PPR vaccination across Africa using a scenario-based macro calculator. Calculations are performed for each region, country, and subregion, based on user-adjustable parameters for coverage, newborn rates, wastage, delivery channel, and cost multipliers. Year 1 and Year 2 costs are calculated using population, coverage, wastage, and multipliers for political stability and delivery channel.
+""")
+    st.markdown('<div class="methodology-section">Calculation Steps</div>', unsafe_allow_html=True)
+    st.markdown("""
+- **Year 1:**
+    - Vaccinated = Population × Coverage %
+    - Doses = Vaccinated / (1 - Wastage %)
+    - Base Cost = Doses × Cost per Animal
+    - Final Cost = Base Cost × Political Stability Multiplier × Delivery Channel Multiplier
+- **Year 2:**
+    - Newborns = Vaccinated × Newborn %
+    - Repeat dose and cost calculations for newborns
+""")
+    st.markdown('<div class="methodology-section">Key Data Tables</div>', unsafe_allow_html=True)
+    st.markdown("**Regional Vaccination Costs (USD/animal):**")
+    regional_costs_table = pd.DataFrame([
+        {"Region": "North Africa", "Minimum": 0.106, "Average": 0.191, "Maximum": 0.325},
+        {"Region": "West Africa", "Minimum": 0.106, "Average": 0.191, "Maximum": 0.325},
+        {"Region": "East Africa", "Minimum": 0.085, "Average": 0.153, "Maximum": 0.260},
+        {"Region": "Central Africa", "Minimum": 0.095, "Average": 0.171, "Maximum": 0.291},
+        {"Region": "Southern Africa", "Minimum": 0.127, "Average": 0.229, "Maximum": 0.389},
+    ])
+    st.dataframe(regional_costs_table, height=regional_costs_table.shape[0]*35+40)
+    st.markdown("**Political Stability Multiplier Logic:**")
+    st.markdown("""
+- Index < Low Threshold: High risk, higher multiplier
+- Low ≤ Index < High: Moderate risk, moderate multiplier
+- Index ≥ High: Low risk, lower multiplier
+""")
+    st.markdown("**Example Data Table (National):**")
+    # Drop duplicate and None columns before display
+    national_df_display = national_df.loc[:,~national_df.columns.duplicated()]
+    national_df_display = national_df_display.loc[:,national_df_display.columns.notnull()]
+    st.dataframe(national_df_display.head(10), height=350)
+    st.markdown("**Example Data Table (Subregions):**")
+    st.dataframe(subregions_df.head(10), height=350)
+    st.markdown('<div class="methodology-section">Data Sources</div>', unsafe_allow_html=True)
+    st.markdown("""
+- FAOSTAT (population inputs)
+- VADEMOS tool (forecasting)
+- GLW4 (Gridded Livestock of the World, density allocation)
+- Key Factors document, case studies (cost references)
+- Internal docs: methodology, costs influencers, analysis examples
+""")

@@ -465,15 +465,17 @@ with tabs[1]:
     cost_y2 = country_table_df_sorted["Cost Y2"].apply(lambda x: float(str(x).replace('$','').replace(',','')))
 
     bar_fig = go.Figure()
-    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y1, name="Y1", marker_color="#636EFA", orientation="h"))
-    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y2, name="Y2", marker_color="#EF553B", orientation="h"))
+    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y1, name="Y1", marker_color="#636EFA", orientation="h", width=0.8))
+    bar_fig.add_trace(go.Bar(y=country_names, x=cost_y2, name="Y2", marker_color="#EF553B", orientation="h", width=0.8))
     bar_fig.update_layout(
         barmode="group",
         title="Vaccination Cost by Country (Y1 vs Y2)",
         xaxis_title="Cost (USD)",
         yaxis_title="Country",
         legend_title="Year",
-        height=700
+        height=700,
+        bargap=0.1,  # Reduce gap between bars
+        bargroupgap=0.05  # Reduce gap between groups
     )
     st.plotly_chart(bar_fig, use_container_width=True)
 
@@ -485,16 +487,23 @@ with tabs[2]:
     subregion_data = subregions_df[subregions_df["Country"] == selected_country]
     subregion_table = []
     for idx, row in subregion_data.iterrows():
-        subregion = row["Subregion"] if "Subregion" in row and pd.notnull(row["Subregion"]) else None
-        specie = row["Specie"] if "Specie" in row and pd.notnull(row["Specie"]) else None
-        population = row["100%_Coverage"] if "100%_Coverage" in row and pd.notnull(row["100%_Coverage"]) else 0
+        subregion = row["Subregion"] if pd.notnull(row["Subregion"]) else "Unknown"
+        # Check for both 'Specie' and 'Species' columns
+        if "Specie" in subregion_data.columns:
+            specie_val = row["Specie"]
+        elif "Species" in subregion_data.columns:
+            specie_val = row["Species"]
+        else:
+            specie_val = "Unknown"
+        specie = specie_val if pd.notnull(specie_val) else "Unknown"
+        population = row["100%_Coverage"] if pd.notnull(row["100%_Coverage"]) else 0
         psi = 0.3  # Default, can be updated if available
         cost_per_animal = get_country_cost(selected_country)
         political_mult = get_political_mult(psi)
         coverage_frac = coverage / 100.0
-        # Calculations based on specie
+        # Calculations for both species
         goats_y1 = sheep_y1 = goats_y2 = sheep_y2 = doses_y1 = doses_y2 = cost_y1 = cost_y2 = wasted_y1 = wasted_y2 = 0
-        if specie and "goat" in specie.lower():
+        if "Goats" in str(specie).lower():
             vaccinated_y1 = vaccinated_initial(population, coverage_frac)
             doses_y1 = doses_required(vaccinated_y1, wastage/100)
             cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
@@ -508,7 +517,7 @@ with tabs[2]:
             wasted_y2 = doses_y2 - vaccinated_y2
             goats_y1 = vaccinated_y1
             goats_y2 = vaccinated_y2
-        elif specie and "sheep" in specie.lower():
+        if "sheep" in str(specie).lower():
             vaccinated_y1 = vaccinated_initial(population, coverage_frac)
             doses_y1 = doses_required(vaccinated_y1, wastage/100)
             cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
@@ -522,7 +531,6 @@ with tabs[2]:
             wasted_y2 = doses_y2 - vaccinated_y2
             sheep_y1 = vaccinated_y1
             sheep_y2 = vaccinated_y2
-        # Add row for each subregion/specie
         subregion_table.append({
             "Subregion": subregion,
             "Specie": specie,
@@ -541,8 +549,11 @@ with tabs[2]:
             "Wasted Y2": int(wasted_y2),
         })
     subregion_table_df = pd.DataFrame(subregion_table)
+    # Only show relevant columns (hide Specie and Population)
+    display_cols = ["Subregion", "Goats Y1", "Sheep Y1", "Total Y1", "Cost Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Cost Y2", "Doses Y2", "Wasted Y2"]
+    subregion_table_df = subregion_table_df[display_cols]
     # Format columns
-    for col in ["Area", "Population", "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
+    for col in ["Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
         if col in subregion_table_df:
             subregion_table_df[col] = subregion_table_df[col].map(lambda x: f"{int(x):,}" if pd.notnull(x) and str(x).isdigit() else x)
     st.dataframe(subregion_table_df)

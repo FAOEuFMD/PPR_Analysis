@@ -544,7 +544,7 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                         for region in regions:
                             selected_specific_regions.append((country, region))
             
-            # If specific subregions are selected, show only those subregions
+            # Show specific subregions where selected
             if has_specific_regions and admin1_geojson:
                 for country, region in selected_specific_regions:
                     region_found = False
@@ -646,73 +646,72 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                                     ).add_to(m)
                                     break
             
-            # For countries where "All regions" is selected, show country shapes
-            else:
-                if world_geojson:
-                    for country in selected_countries:
-                        # Check if this country has "All regions" selected
-                        region_option = st.session_state.get(f"region_option_{country}", "All regions")
+            # Show full countries where "All regions" is selected
+            if world_geojson:
+                for country in selected_countries:
+                    # Check if this country has "All regions" selected
+                    region_option = st.session_state.get(f"region_option_{country}", "All regions")
+                    
+                    if region_option == "All regions":
+                        country_found = False
                         
-                        if region_option == "All regions":
-                            country_found = False
+                        # Try to find the country in the GeoJSON data
+                        for feature in world_geojson['features']:
+                            country_name = feature['properties'].get('NAME', '').strip()
                             
-                            # Try to find the country in the GeoJSON data
-                            for feature in world_geojson['features']:
-                                country_name = feature['properties'].get('NAME', '').strip()
-                                
-                                # Multiple name matching strategies
-                                name_matches = [
-                                    country_name.lower() == country.lower(),
-                                    country_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
-                                    country.lower() in country_name.lower(),
-                                    country_name.lower() in country.lower(),
-                                    # Specific country name mappings
-                                    (country == "Democratic Republic of the Congo" and "congo" in country_name.lower() and "democratic" in country_name.lower()),
-                                    (country == "Côte d'Ivoire" and ("ivory" in country_name.lower() or "cote" in country_name.lower())),
-                                    (country == "United Republic of Tanzania" and "tanzania" in country_name.lower()),
-                                    (country == "Cape Verde" and "cabo verde" in country_name.lower()),
-                                ]
-                                
-                                if any(name_matches):
-                                    # Add the actual country shape to the map
-                                    folium.GeoJson(
-                                        feature,
-                                        style_function=lambda x: {
-                                            'fillColor': 'red',
-                                            'color': 'darkred',
-                                            'weight': 2,
-                                            'fillOpacity': 0.4,
-                                            'dashArray': '5, 5'
-                                        },
-                                        popup=folium.Popup(f"<b>{country}</b>", parse_html=True),
-                                        tooltip=f"{country}"
-                                    ).add_to(m)
-                                    country_found = True
-                                    break
+                            # Multiple name matching strategies
+                            name_matches = [
+                                country_name.lower() == country.lower(),
+                                country_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
+                                country.lower() in country_name.lower(),
+                                country_name.lower() in country.lower(),
+                                # Specific country name mappings
+                                (country == "Democratic Republic of the Congo" and "congo" in country_name.lower() and "democratic" in country_name.lower()),
+                                (country == "Côte d'Ivoire" and ("ivory" in country_name.lower() or "cote" in country_name.lower())),
+                                (country == "United Republic of Tanzania" and "tanzania" in country_name.lower()),
+                                (country == "Cape Verde" and "cabo verde" in country_name.lower()),
+                            ]
                             
-                            # If country shape not found, show a message
-                            if not country_found:
-                                st.warning(f"Could not find shape data for {country}. Using fallback marker.")
-                                coords = country_coords.get(country)
-                                if coords:
-                                    folium.Marker(
-                                        location=coords,
-                                        popup=f"{country} (shape not available)",
-                                        tooltip=f"{country}",
-                                        icon=folium.Icon(color='red', icon='info-sign')
-                                    ).add_to(m)
-                else:
-                    st.error("Could not load country boundary data. Using markers instead.")
-                    # Fallback to markers if GeoJSON fails
-                    for country in selected_countries:
-                        coords = country_coords.get(country)
-                        if coords:
-                            folium.Marker(
-                                location=coords,
-                                popup=f"{country}",
-                                tooltip=f"{country}",
-                                icon=folium.Icon(color='red', icon='info-sign')
-                            ).add_to(m)
+                            if any(name_matches):
+                                # Add the actual country shape to the map
+                                folium.GeoJson(
+                                    feature,
+                                    style_function=lambda x: {
+                                        'fillColor': 'red',
+                                        'color': 'darkred',
+                                        'weight': 2,
+                                        'fillOpacity': 0.4,
+                                        'dashArray': '5, 5'
+                                    },
+                                    popup=folium.Popup(f"<b>{country}</b>", parse_html=True),
+                                    tooltip=f"{country}"
+                                ).add_to(m)
+                                country_found = True
+                                break
+                        
+                        # If country shape not found, show a message
+                        if not country_found:
+                            st.warning(f"Could not find shape data for {country}. Using fallback marker.")
+                            coords = country_coords.get(country)
+                            if coords:
+                                folium.Marker(
+                                    location=coords,
+                                    popup=f"{country} (shape not available)",
+                                    tooltip=f"{country}",
+                                    icon=folium.Icon(color='red', icon='info-sign')
+                                ).add_to(m)
+            else:
+                st.error("Could not load country boundary data. Using markers instead.")
+                # Fallback to markers if GeoJSON fails
+                for country in selected_countries:
+                    coords = country_coords.get(country)
+                    if coords:
+                        folium.Marker(
+                            location=coords,
+                            popup=f"{country}",
+                            tooltip=f"{country}",
+                            icon=folium.Icon(color='red', icon='info-sign')
+                        ).add_to(m)
             
             # Display the map
             map_data = st_folium(m, width=700, height=400)
@@ -1269,6 +1268,21 @@ The dashboard estimates the cost of PPR vaccination across Africa using a scenar
         {"Region": "Southern Africa", "Minimum": 0.127, "Average": 0.229, "Maximum": 0.389},
     ])
     st.dataframe(regional_costs_table, height=regional_costs_table.shape[0]*35+40)
+    
+    st.markdown('<div class="methodology-section">Key Factors Influencing Vaccination Costs</div>', unsafe_allow_html=True)
+    factors_table = pd.DataFrame([
+        {"Factor": "Logistics & Personnel", "Impact on Cost": "Often the largest component (>50% of total cost); includes vaccine delivery, transportation, and staff wages."},
+        {"Factor": "Channel (Public vs. Private)", "Impact on Cost": "Public campaigns have higher operational costs due to overhead, while private delivery can be cheaper but more variable."},
+        {"Factor": "Location & Production System", "Impact on Cost": "Pastoral vs. agropastoral or mixed-crop systems differ in accessibility and farmer participation."},
+        {"Factor": "Economies of Scale", "Impact on Cost": "Large campaigns (e.g., Somalia) reduce per-animal costs significantly."},
+        {"Factor": "Vaccine Wastage", "Impact on Cost": "Missed shots or leftover doses can add 10–33% to costs."},
+        {"Factor": "Farmer Opportunity Cost", "Impact on Cost": "Especially relevant in mixed-crop systems where farmers lose work time to bring animals for vaccination."},
+    ])
+    st.dataframe(factors_table, height=factors_table.shape[0]*35+40)
+    st.markdown("""
+Given the significant impact of delivery and logistics challenges on vaccination costs, particularly in regions with varying political stability, we incorporate the Political Stability Index (PSI) as an adjustment factor to account for these operational complexities and their associated cost implications.
+""")
+    
     st.markdown("**Political Stability Multiplier Logic:**")
     st.markdown("""
 Political stability index (-2.5 weak; 2.5 strong), 2023: The average for 2023 based on 53 countries was -0.68 points. The indicator is available from 1996 to 2023.
@@ -1289,6 +1303,12 @@ Political stability index (-2.5 weak; 2.5 strong), 2023: The average for 2023 ba
 **Population data:** FAO. 2024. FAOSTAT Statistical Database. Food and Agriculture Organization of the United Nations. Available at: [https://www.fao.org/faostat/en/](https://www.fao.org/faostat/en/)
 
 **Livestock density data:** FAO. 2024. Gridded Livestock of the World (GLW) 4: Gridded Livestock Density (Global - 2020 - 10 km). Food and Agriculture Organization of the United Nations. Available at: [https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704](https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704)
+
+**Vaccination cost data:** The document draws from peer-reviewed studies and field cost estimates on Peste des Petits Ruminants (PPR) vaccination programs in Africa. Key cited sources include:
+
+- **Ethiopia:** Lyons NA et al., Prev Vet Med. 2019 – Field-derived cost estimates of PPR vaccination in Ethiopia. [DOI: 10.1016/j.prevetmed.2018.12.007]
+- **Burkina Faso, Senegal, Nigeria:** Ilboudo GS et al., Animals (Basel). 2022 – PPR vaccination cost estimates in Burkina Faso. [DOI: 10.3390/ani12162152]
+- **Somalia:** Jue S et al., Pastoralism. 2018 – Sero-prevalence and vaccination cost analysis.
 
 **Political stability data:** TheGlobalEconomy.com. 2024. Political stability index for Africa. Available at: [https://www.theglobaleconomy.com/rankings/wb_political_stability/Africa/](https://www.theglobaleconomy.com/rankings/wb_political_stability/Africa/)
 

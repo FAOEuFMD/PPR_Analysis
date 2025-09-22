@@ -60,11 +60,16 @@ def validate_subregions(df: pd.DataFrame) -> pd.DataFrame:
     print(f"DEBUG - Subregions raw columns: {df.columns.tolist()}")
     print(f"DEBUG - Subregions sample data:\n{df.head()}")
     
-    required_cols = ["Country", "Subregion", "Specie", "100%_Coverage"]
+    required_cols = ["Country", "Subregion", "Specie", "100%_Coverage", "api_name"]
     # Fill missing columns with default values
     for col in required_cols:
         if col not in df.columns:
-            df[col] = "Unknown" if col != "100%_Coverage" else 0
+            if col == "api_name":
+                df[col] = ""  # Empty string for missing api_name
+            elif col == "100%_Coverage":
+                df[col] = 0
+            else:
+                df[col] = "Unknown"
             audit_log.append(f"Missing column '{col}' in Subregions.xlsx. Defaulted.")
         else:
             audit_log.append(f"Found column '{col}' in Subregions.xlsx.")

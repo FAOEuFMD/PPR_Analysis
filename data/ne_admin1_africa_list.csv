@@ -1,0 +1,907 @@
+NE_name,country
+Lunda Norte,Angola
+Lunda Sul,Angola
+Malanje,Angola
+Bengo,Angola
+Cuanza Norte,Angola
+Cuanza Sul,Angola
+Luanda,Angola
+Uíge,Angola
+Zaire,Angola
+Cabinda,Angola
+Bié,Angola
+Benguela,Angola
+Cuando Cubango,Angola
+Cunene,Angola
+Huambo,Angola
+Huíla,Angola
+Moxico,Angola
+Namibe,Angola
+Cankuzo,Burundi
+Karuzi,Burundi
+Rutana,Burundi
+Ruyigi,Burundi
+Bubanza,Burundi
+Bururi,Burundi
+Cibitoke,Burundi
+Gitega,Burundi
+Kayanza,Burundi
+Makamba,Burundi
+Ngozi,Burundi
+Kirundo,Burundi
+Muyinga,Burundi
+Bujumbura Mairie,Burundi
+Muramvya,Burundi
+Bujumbura Rural,Burundi
+Mwaro,Burundi
+Borgou,Benin
+Alibori,Benin
+Collines,Benin
+Atlantique,Benin
+Littoral,Benin
+Kouffo,Benin
+Ouémé,Benin
+Zou,Benin
+Plateau,Benin
+Mono,Benin
+Atakora,Benin
+Donga,Benin
+Kompienga,Burkina Faso
+Gourma,Burkina Faso
+Houet,Burkina Faso
+Kénédougou,Burkina Faso
+Banwa,Burkina Faso
+Kossi,Burkina Faso
+Balé,Burkina Faso
+Mou Houn,Burkina Faso
+Oudalan,Burkina Faso
+Soum,Burkina Faso
+Nayala,Burkina Faso
+Sourou,Burkina Faso
+Bam,Burkina Faso
+Boulkiemdé,Burkina Faso
+Kourwéogo,Burkina Faso
+Bazéga,Burkina Faso
+Kadiogo,Burkina Faso
+Oubritenga,Burkina Faso
+Passoré,Burkina Faso
+Zondoma,Burkina Faso
+Sanguié,Burkina Faso
+Sissili,Burkina Faso
+Ziro,Burkina Faso
+Loroum,Burkina Faso
+Yatenga,Burkina Faso
+Namentenga,Burkina Faso
+Sanmatenga,Burkina Faso
+Boulgou,Burkina Faso
+Koulpélogo,Burkina Faso
+Ganzourgou,Burkina Faso
+Kouritenga,Burkina Faso
+Nahouri,Burkina Faso
+Zoundwéogo,Burkina Faso
+Bougouriba,Burkina Faso
+Ioba,Burkina Faso
+Tuy,Burkina Faso
+Léraba,Burkina Faso
+Komoé,Burkina Faso
+Poni,Burkina Faso
+Gnagna,Burkina Faso
+Komondjari,Burkina Faso
+Séno,Burkina Faso
+Yagha,Burkina Faso
+Tapoa,Burkina Faso
+Noumbiel,Burkina Faso
+Ghanzi,Botswana
+Kgalagadi,Botswana
+North-West,Botswana
+Central,Botswana
+Kgatleng,Botswana
+Kweneng,Botswana
+South-East,Botswana
+Southern,Botswana
+North-East,Botswana
+Gaborone,Botswana
+Francistown,Botswana
+Lobatse,Botswana
+Selebi-Phikwe,Botswana
+Sowa,Botswana
+Jwaneng,Botswana
+Bangui,Central African Republic
+Ombella-M'Poko,Central African Republic
+Basse-Kotto,Central African Republic
+Lobaye,Central African Republic
+Mambéré-Kadéï,Central African Republic
+Sangha-Mbaéré,Central African Republic
+Nana-Mambéré,Central African Republic
+Ouham-Pendé,Central African Republic
+Bamingui-Bangoran,Central African Republic
+Nana-Grébizi,Central African Republic
+Kémo,Central African Republic
+Ouaka,Central African Republic
+Ouham,Central African Republic
+Vakaga,Central African Republic
+Haute-Kotto,Central African Republic
+Haut-Mbomou,Central African Republic
+Mbomou,Central African Republic
+Savanes,Ivory Coast
+Denguélé,Ivory Coast
+Bafing,Ivory Coast
+Dix-Huit Montagnes,Ivory Coast
+Worodougou,Ivory Coast
+Marahoué,Ivory Coast
+Fromager,Ivory Coast
+Haut-Sassandra,Ivory Coast
+Sud-Bandama,Ivory Coast
+Bas-Sassandra,Ivory Coast
+Zanzan,Ivory Coast
+Vallée du Bandama,Ivory Coast
+Agnéby,Ivory Coast
+N'zi-Comoé,Ivory Coast
+Lagunes,Ivory Coast
+Cavally,Ivory Coast
+Comoe,Ivory Coast
+Lacs,Ivory Coast
+Sud-Comoé,Ivory Coast
+Extrême-Nord,Cameroon
+Littoral,Cameroon
+Nord-Ouest,Cameroon
+Centre,Cameroon
+Est,Cameroon
+Adamaoua,Cameroon
+Nord,Cameroon
+Ouest,Cameroon
+Sud-Ouest,Cameroon
+Sud,Cameroon
+Équateur,Democratic Republic of the Congo
+Orientale,Democratic Republic of the Congo
+Bandundu,Democratic Republic of the Congo
+Kasaï-Occidental,Democratic Republic of the Congo
+Bas-Congo,Democratic Republic of the Congo
+Kinshasa City,Democratic Republic of the Congo
+Sud-Kivu,Democratic Republic of the Congo
+Maniema,Democratic Republic of the Congo
+Kasaï-Oriental,Democratic Republic of the Congo
+Katanga,Democratic Republic of the Congo
+Nord-Kivu,Democratic Republic of the Congo
+Cuvette-Ouest,Republic of the Congo
+Bouenza,Republic of the Congo
+Likouala,Republic of the Congo
+Sangha,Republic of the Congo
+Pool,Republic of the Congo
+Cuvette,Republic of the Congo
+Kouilou,Republic of the Congo
+Lékoumou,Republic of the Congo
+Niari,Republic of the Congo
+Plateaux,Republic of the Congo
+Brazzaville,Republic of the Congo
+Pointe Noire,Republic of the Congo
+Moûhîlî,Comoros
+Andjazîdja,Comoros
+Andjouân,Comoros
+Brava,Cape Verde
+São Filipe,Cape Verde
+Mosteiros,Cape Verde
+Santa Catarina do Fogo,Cape Verde
+Tarrafal,Cape Verde
+Santa Catarina,Cape Verde
+São Miguel,Cape Verde
+Santa Cruz,Cape Verde
+São Salvador do Mundo,Cape Verde
+São Lourenço dos Órgãos,Cape Verde
+São Domingos,Cape Verde
+Ribeira Grande de Santiago,Cape Verde
+Praia,Cape Verde
+Maio,Cape Verde
+Boa Vista,Cape Verde
+Sal,Cape Verde
+Ribeira Brava,Cape Verde
+Tarrafal de São Nicolau,Cape Verde
+São Vicente,Cape Verde
+Porto Novo,Cape Verde
+Ribeira Grande,Cape Verde
+Paul,Cape Verde
+Ali Sabieh,Djibouti
+Djibouti,Djibouti
+Arta,Djibouti
+Dikhil,Djibouti
+Obock,Djibouti
+Tadjourah,Djibouti
+Adrar,Algeria
+Aïn Témouchent,Algeria
+Oran,Algeria
+Sidi Bel Abbès,Algeria
+Tlemcen,Algeria
+Béchar,Algeria
+Naâma,Algeria
+Tindouf,Algeria
+Annaba,Algeria
+El Tarf,Algeria
+Jijel,Algeria
+Skikda,Algeria
+Illizi,Algeria
+Tamanghasset,Algeria
+El Bayadh,Algeria
+El Oued,Algeria
+Ghardaïa,Algeria
+Laghouat,Algeria
+Ouargla,Algeria
+Alger,Algeria
+Boumerdès,Algeria
+Tizi Ouzou,Algeria
+Tipaza,Algeria
+Aïn Defla,Algeria
+Chlef,Algeria
+Mascara,Algeria
+Mostaganem,Algeria
+Relizane,Algeria
+Saïda,Algeria
+Tiaret,Algeria
+Tissemsilt,Algeria
+Bordj Bou Arréridj,Algeria
+Béjaïa,Algeria
+Blida,Algeria
+Bouira,Algeria
+Biskra,Algeria
+Djelfa,Algeria
+Médéa,Algeria
+M'Sila,Algeria
+Sétif,Algeria
+Batna,Algeria
+Constantine,Algeria
+Guelma,Algeria
+Khenchela,Algeria
+Mila,Algeria
+Oum el Bouaghi,Algeria
+Souk Ahras,Algeria
+Tébessa,Algeria
+Al Gharbiyah,Egypt
+Al Isma`iliyah,Egypt
+Al Minufiyah,Egypt
+Al Qahirah,Egypt
+Al Qalyubiyah,Egypt
+Ash Sharqiyah,Egypt
+As Suways,Egypt
+Ad Daqahliyah,Egypt
+Bur Sa`id,Egypt
+Dumyat,Egypt
+Matruh,Egypt
+Al Buhayrah,Egypt
+Al Fayyum,Egypt
+Al Iskandariyah,Egypt
+Al Jizah,Egypt
+Al Minya,Egypt
+Bani Suwayf,Egypt
+Kafr ash Shaykh,Egypt
+Aswan,Egypt
+Asyut,Egypt
+Al Wadi at Jadid,Egypt
+Qina,Egypt
+Suhaj,Egypt
+Al Bahr al Ahmar,Egypt
+Janub Sina',Egypt
+Shamal Sina',Egypt
+Luxor,Egypt
+Gash Barka,Eritrea
+Anseba,Eritrea
+Debub,Eritrea
+Semenawi Keyih Bahri,Eritrea
+Maekel,Eritrea
+Debubawi Keyih Bahri,Eritrea
+Amhara,Ethiopia
+Tigray,Ethiopia
+Afar,Ethiopia
+"Southern Nations, Nationalities and Peoples",Ethiopia
+Gambela Peoples,Ethiopia
+Oromiya,Ethiopia
+Benshangul-Gumaz,Ethiopia
+Addis Ababa,Ethiopia
+Somali,Ethiopia
+Dire Dawa,Ethiopia
+Harari People,Ethiopia
+Estuaire,Gabon
+Ogooué-Ivindo,Gabon
+Wouleu-Ntem,Gabon
+Moyen-Ogooué,Gabon
+Ngounié,Gabon
+Nyanga,Gabon
+Ogooué-Maritime,Gabon
+Haut-Ogooué,Gabon
+Ogooué-Lolo,Gabon
+Northern,Ghana
+Upper East,Ghana
+Upper West,Ghana
+Ashanti,Ghana
+Brong Ahafo,Ghana
+Central,Ghana
+Eastern,Ghana
+Western,Ghana
+Greater Accra,Ghana
+Volta,Ghana
+Beyla,Guinea
+Boffa,Guinea
+Boke,Guinea
+Conakry,Guinea
+Coyah,Guinea
+Dabola,Guinea
+Dalaba,Guinea
+Dinguiraye,Guinea
+Dubréka,Guinea
+Faranah,Guinea
+Forécariah,Guinea
+Fria,Guinea
+Gaoual,Guinea
+Guéckédou,Guinea
+Kankan,Guinea
+Kérouané,Guinea
+Kindia,Guinea
+Kissidougou,Guinea
+Koubia,Guinea
+Koundara,Guinea
+Kouroussa,Guinea
+Labé,Guinea
+Lélouma,Guinea
+Lola,Guinea
+Macenta,Guinea
+Mali,Guinea
+Mamou,Guinea
+Mandiana,Guinea
+Nzérékoré,Guinea
+Pita,Guinea
+Siguiri,Guinea
+Tougué,Guinea
+Yomou,Guinea
+Télimélé,Guinea
+Central River,Gambia
+Upper River,Gambia
+Banjul,Gambia
+Lower River,Gambia
+West Coast,Gambia
+North Bank,Gambia
+Biombo,Guinea Bissau
+Bissau,Guinea Bissau
+Bolama,Guinea Bissau
+Cacheu,Guinea Bissau
+Oio,Guinea Bissau
+Quinara,Guinea Bissau
+Bafatá,Guinea Bissau
+Gabú,Guinea Bissau
+Tombali,Guinea Bissau
+Annobón,Equatorial Guinea
+Centro Sur,Equatorial Guinea
+Kié-Ntem,Equatorial Guinea
+Litoral,Equatorial Guinea
+Wele-Nzás,Equatorial Guinea
+Bioko Norte,Equatorial Guinea
+Bioko Sur,Equatorial Guinea
+Coast,Kenya
+Central,Kenya
+Nairobi,Kenya
+Nyanza,Kenya
+Eastern,Kenya
+Rift Valley,Kenya
+Western,Kenya
+North-Eastern,Kenya
+River Gee,Liberia
+Gbapolu,Liberia
+Grand Kru,Liberia
+Maryland,Liberia
+Sinoe,Liberia
+Bomi,Liberia
+Bong,Liberia
+Grand Bassa,Liberia
+Grand Cape Mount,Liberia
+Lofa,Liberia
+Montserrado,Liberia
+Margibi,Liberia
+Nimba,Liberia
+River Cess,Liberia
+Grand Gedeh,Liberia
+Ghadamis,Libya
+Al Jufrah,Libya
+Al Kufrah,Libya
+Al Marqab,Libya
+Ash Shati',Libya
+Ghat,Libya
+Murzuq,Libya
+Misratah,Libya
+Sabha,Libya
+Al Jifarah,Libya
+An Nuqat al Khams,Libya
+Az Zawiyah,Libya
+Mizdah,Libya
+Tajura' wa an Nawahi al Arba,Libya
+Al Marj,Libya
+Al Jabal al Akhdar,Libya
+Ajdabiya,Libya
+Benghazi,Libya
+Surt,Libya
+Al Qubbah,Libya
+Al Butnan,Libya
+Wadi al Hayaa,Libya
+Berea,Lesotho
+Maseru,Lesotho
+Mohale's Hoek,Lesotho
+Quthing,Lesotho
+Butha-Buthe,Lesotho
+Leribe,Lesotho
+Mokhotlong,Lesotho
+Qacha's Nek,Lesotho
+Thaba-Tseka,Lesotho
+Mafeteng,Lesotho
+Tanger - Tétouan,Morocco
+Fès - Boulemane,Morocco
+Taza - Al Hoceima - Taounate,Morocco
+Gharb - Chrarda - Béni Hssen,Morocco
+Chaouia - Ouardigha,Morocco
+Grand Casablanca,Morocco
+Rabat - Salé - Zemmour - Zaer,Morocco
+Meknès - Tafilalet,Morocco
+Tadla - Azilal,Morocco
+Oriental,Morocco
+Souss - Massa - Draâ,Morocco
+Marrakech - Tensift - Al Haouz,Morocco
+Doukkala - Abda,Morocco
+Laâyoune - Boujdour - Sakia El Hamra,Morocco
+Guelmim - Es-Semara,Morocco
+Oued el Dahab,Morocco
+Alaotra-Mangoro,Madagascar
+Amoron'i Mania,Madagascar
+Analamanga,Madagascar
+Analanjirofo,Madagascar
+Androy,Madagascar
+Anosy,Madagascar
+Atsimo-Andrefana,Madagascar
+Atsimo-Atsinanana,Madagascar
+Atsinanana,Madagascar
+Betsiboka,Madagascar
+Boeny,Madagascar
+Bongolava,Madagascar
+Diana,Madagascar
+Haute Matsiatra,Madagascar
+Ihorombe,Madagascar
+Itasy,Madagascar
+Melaky,Madagascar
+Menabe,Madagascar
+Sava,Madagascar
+Sofia,Madagascar
+Vakinankaratra,Madagascar
+Vatovavy-Fitovinany,Madagascar
+Timbuktu,Mali
+Kidal,Mali
+Gao,Mali
+Bamako,Mali
+Kayes,Mali
+Sikasso,Mali
+Mopti,Mali
+Ségou,Mali
+Koulikoro,Mali
+Tete,Mozambique
+Manica,Mozambique
+Cabo Delgado,Mozambique
+Niassa,Mozambique
+Nampula,Mozambique
+Gaza,Mozambique
+Sofala,Mozambique
+Zambezia,Mozambique
+Inhambane,Mozambique
+Maputo,Mozambique
+Tiris Zemmour,Mauritania
+Brakna,Mauritania
+Dakhlet Nouadhibou,Mauritania
+Inchiri,Mauritania
+Nouakchott,Mauritania
+Trarza,Mauritania
+Assaba,Mauritania
+Guidimaka,Mauritania
+Gorgol,Mauritania
+Adrar,Mauritania
+Hodh ech Chargui,Mauritania
+Hodh el Gharbi,Mauritania
+Tagant,Mauritania
+Agaléga,Mauritius
+Beau Bassin-Rose Hill,Mauritius
+Curepipe,Mauritius
+Flacq,Mauritius
+Grand Port,Mauritius
+Moka,Mauritius
+Pamplemousses,Mauritius
+Plaines Wilhems,Mauritius
+Port Louis,Mauritius
+Port Louis city,Mauritius
+Quatre Bornes,Mauritius
+Rivière du Rempart,Mauritius
+Rivière Noire,Mauritius
+Rodrigues,Mauritius
+Savanne,Mauritius
+Vacoas-Phoenix,Mauritius
+Chitipa,Malawi
+Kasungu,Malawi
+Mzimba,Malawi
+Nkhata Bay,Malawi
+Nkhotakota,Malawi
+Rumphi,Malawi
+Machinga,Malawi
+Dedza,Malawi
+Dowa,Malawi
+Lilongwe,Malawi
+Mangochi,Malawi
+Mchinji,Malawi
+Ntcheu,Malawi
+Ntchisi,Malawi
+Salima,Malawi
+Balaka,Malawi
+Chikwawa,Malawi
+Chiradzulu,Malawi
+Thyolo,Malawi
+Nsanje,Malawi
+Zomba,Malawi
+Blantyre,Malawi
+Mwanza,Malawi
+Mulanje,Malawi
+Phalombe,Malawi
+Likoma,Malawi
+Neno,Malawi
+Karas,Namibia
+Hardap,Namibia
+Khomas,Namibia
+Kunene,Namibia
+Erongo,Namibia
+Otjozondjupa,Namibia
+Omusati,Namibia
+Oshana,Namibia
+Ohangwena,Namibia
+Omaheke,Namibia
+Kavango,Namibia
+Oshikoto,Namibia
+Caprivi,Namibia
+Tillabéri,Niger
+Diffa,Niger
+Agadez,Niger
+Maradi,Niger
+Zinder,Niger
+Dosso,Niger
+Niamey,Niger
+Tahoua,Niger
+Borno,Nigeria
+Abia,Nigeria
+Akwa Ibom,Nigeria
+Imo,Nigeria
+Rivers,Nigeria
+Bayelsa,Nigeria
+Benue,Nigeria
+Cross River,Nigeria
+Taraba,Nigeria
+Kwara,Nigeria
+Lagos,Nigeria
+Niger,Nigeria
+Ogun,Nigeria
+Ondo,Nigeria
+Ekiti,Nigeria
+Osun,Nigeria
+Oyo,Nigeria
+Anambra,Nigeria
+Bauchi,Nigeria
+Gombe,Nigeria
+Delta,Nigeria
+Edo,Nigeria
+Enugu,Nigeria
+Ebonyi,Nigeria
+Kaduna,Nigeria
+Kogi,Nigeria
+Plateau,Nigeria
+Nassarawa,Nigeria
+Jigawa,Nigeria
+Kano,Nigeria
+Katsina,Nigeria
+Sokoto,Nigeria
+Zamfara,Nigeria
+Yobe,Nigeria
+Kebbi,Nigeria
+Adamawa,Nigeria
+Federal Capital Territory,Nigeria
+Southern,Rwanda
+Western,Rwanda
+Eastern,Rwanda
+Northern,Rwanda
+Kigali City,Rwanda
+Western Sahara,Western Sahara
+Blue Nile,Sudan
+Red Sea,Sudan
+Southern Darfur,Sudan
+Eastern Darfur,Sudan
+Western Darfur,Sudan
+Central Darfur,Sudan
+Khartoum,Sudan
+Gezira,Sudan
+Gedarif,Sudan
+River Nile,Sudan
+Northern,Sudan
+White Nile,Sudan
+Sennar,Sudan
+North Darfur,Sudan
+South Kordufan,Sudan
+North Kordufan,Sudan
+Kassala,Sudan
+Sédhiou,Senegal
+Kédougou,Senegal
+Kaffrine,Senegal
+Saint-Louis,Senegal
+Dakar,Senegal
+Diourbel,Senegal
+Fatick,Senegal
+Kaolack,Senegal
+Louga,Senegal
+Matam,Senegal
+Thiès,Senegal
+Kolda,Senegal
+Ziguinchor,Senegal
+Tambacounda,Senegal
+Southern,Sierra Leone
+Western,Sierra Leone
+Northern,Sierra Leone
+Eastern,Sierra Leone
+Bari,Somalia
+Bakool,Somalia
+Bay,Somalia
+Gedo,Somalia
+Jubbada Dhexe,Somalia
+Shabeellaha Hoose,Somalia
+Banaadir,Somalia
+Galguduud,Somalia
+Hiiraan,Somalia
+Shabeellaha Dhexe,Somalia
+Mudug,Somalia
+Nugaal,Somalia
+Jubbada Hoose,Somalia
+São Tomé,Sao Tome and Principe
+Príncipe,Sao Tome and Principe
+Hhohho,Swaziland
+Lubombo,Swaziland
+Manzini,Swaziland
+Shiselweni,Swaziland
+Outer Islands,Seychelles
+Anse aux Pins,Seychelles
+Anse Boileau,Seychelles
+Anse Etoile,Seychelles
+Au Cap,Seychelles
+Anse Royale,Seychelles
+Baie Lazare,Seychelles
+Baie Sainte Anne,Seychelles
+Beau Vallon,Seychelles
+Bel Air,Seychelles
+Bel Ombre,Seychelles
+Cascade,Seychelles
+Glacis,Seychelles
+Grand'Anse,Seychelles
+Grand'Anse Praslin,Seychelles
+La Digue and Inner Islands,Seychelles
+English River,Seychelles
+Mont Buxton,Seychelles
+Mont Fleuri,Seychelles
+Plaisance,Seychelles
+Pointe La Rue,Seychelles
+Port Glaud,Seychelles
+Saint Louis,Seychelles
+Takamaka,Seychelles
+Les Mamelles,Seychelles
+Roche Caïman,Seychelles
+Hadjer-Lamis,Chad
+Kanem,Chad
+Lac,Chad
+Batha,Chad
+Wadi Fira,Chad
+Guéra,Chad
+Ouaddaï,Chad
+Logone Occidental,Chad
+Logone Oriental,Chad
+Mayo-Kebbi Est,Chad
+Tandjilé,Chad
+Mandoul,Chad
+Salamat,Chad
+Ville de N'Djamena,Chad
+Mayo-Kebbi Ouest,Chad
+Borkou,Chad
+Tibesti,Chad
+Ennedi,Chad
+Chari-Baguirmi,Chad
+Barh El Gazel,Chad
+Sila,Chad
+Moyen-Chari,Chad
+Plateaux,Togo
+Maritime,Togo
+Kara,Togo
+Centre,Togo
+Savanes,Togo
+Tozeur,Tunisia
+Manubah,Tunisia
+Béja,Tunisia
+Ben Arous (Tunis Sud),Tunisia
+Bizerte,Tunisia
+Jendouba,Tunisia
+Nabeul,Tunisia
+Tunis,Tunisia
+Le Kef,Tunisia
+Kassérine,Tunisia
+Gabès,Tunisia
+Gafsa,Tunisia
+Sidi Bou Zid,Tunisia
+Sfax,Tunisia
+Siliana,Tunisia
+Mahdia,Tunisia
+Monastir,Tunisia
+Kairouan,Tunisia
+Sousse,Tunisia
+Zaghouan,Tunisia
+Médenine,Tunisia
+Kebili,Tunisia
+Tataouine,Tunisia
+Mbeya,United Republic of Tanzania
+Rukwa,United Republic of Tanzania
+Zanzibar South and Central,United Republic of Tanzania
+Mwanza,United Republic of Tanzania
+Shinyanga,United Republic of Tanzania
+Tabora,United Republic of Tanzania
+Kagera,United Republic of Tanzania
+Kigoma,United Republic of Tanzania
+Dar-Es-Salaam,United Republic of Tanzania
+Morogoro,United Republic of Tanzania
+Kaskazini-Pemba,United Republic of Tanzania
+Kusini-Pemba,United Republic of Tanzania
+Pwani,United Republic of Tanzania
+Kaskazini-Unguja,United Republic of Tanzania
+Zanzibar West,United Republic of Tanzania
+Dodoma,United Republic of Tanzania
+Iringa,United Republic of Tanzania
+Lindi,United Republic of Tanzania
+Mtwara,United Republic of Tanzania
+Ruvuma,United Republic of Tanzania
+Singida,United Republic of Tanzania
+Arusha,United Republic of Tanzania
+Manyara,United Republic of Tanzania
+Kilimanjaro,United Republic of Tanzania
+Mara,United Republic of Tanzania
+Tanga,United Republic of Tanzania
+Katavi,United Republic of Tanzania
+Simiyu,United Republic of Tanzania
+Geita,United Republic of Tanzania
+Njombe,United Republic of Tanzania
+Kalangala,Uganda
+Jinja,Uganda
+Kumi,Uganda
+Kaberamaido,Uganda
+Kayunga,Uganda
+Iganga,Uganda
+Kamuli,Uganda
+Amolatar,Uganda
+Kaliro,Uganda
+Namutumba,Uganda
+Soroti,Uganda
+Mukono,Uganda
+Pallisa,Uganda
+Sembabule,Uganda
+Mpigi,Uganda
+Adjumani,Uganda
+Arua,Uganda
+Koboko,Uganda
+Buliisa,Uganda
+Nebbi,Uganda
+Moyo,Uganda
+Yumbe,Uganda
+Maracha,Uganda
+Kampala,Uganda
+Kiboga,Uganda
+Nakasongola,Uganda
+Wakiso,Uganda
+Luweero,Uganda
+Mubende,Uganda
+Mityana,Uganda
+Nakaseke,Uganda
+Kitgum,Uganda
+Gulu,Uganda
+Lira,Uganda
+Dokolo,Uganda
+Pader,Uganda
+Masindi,Uganda
+Oyam,Uganda
+Bundibugyo,Uganda
+Hoima,Uganda
+Kabarole,Uganda
+Kyenjojo,Uganda
+Kibale,Uganda
+Kapchorwa,Uganda
+Bukwa,Uganda
+Sironko,Uganda
+Mbale,Uganda
+Manafwa,Uganda
+Bugiri,Uganda
+Busia,Uganda
+Butaleja,Uganda
+Mayuge,Uganda
+Tororo,Uganda
+Katakwi,Uganda
+Kotido,Uganda
+Amuria,Uganda
+Kaabong,Uganda
+Abim,Uganda
+Moroto,Uganda
+Nakapiripirit,Uganda
+Rakai,Uganda
+Masaka,Uganda
+Bushenyi,Uganda
+Kasese,Uganda
+Kamwenge,Uganda
+Ibanda,Uganda
+Isingiro,Uganda
+Mbarara,Uganda
+Ntungamo,Uganda
+Rukungiri,Uganda
+Kabale,Uganda
+Kisoro,Uganda
+Kanungu,Uganda
+Zombo,Uganda
+Ngora,Uganda
+Bukedea,Uganda
+Luuka,Uganda
+Buyende,Uganda
+Budaka,Uganda
+Kibuku,Uganda
+Serere,Uganda
+Buikwe,Uganda
+Buvuma,Uganda
+Butambala,Uganda
+Gomba,Uganda
+Amuru,Uganda
+Kyankwanzi,Uganda
+Lamwo,Uganda
+Apac,Uganda
+Kole,Uganda
+Alebtong,Uganda
+Otuke,Uganda
+Agago,Uganda
+Kiryandongo,Uganda
+Ntoroko,Uganda
+Kyegegwa,Uganda
+Kween,Uganda
+Bulambuli,Uganda
+Namayingo,Uganda
+Napak,Uganda
+Amudat,Uganda
+Lwengo,Uganda
+Lyantonde,Uganda
+Bukomansimbi,Uganda
+Kalungu,Uganda
+Rubirizi,Uganda
+Mitooma,Uganda
+Sheema,Uganda
+Buhweju,Uganda
+Nwoya,Uganda
+Bududa,Uganda
+Northern Cape,South Africa
+Western Cape,South Africa
+North West,South Africa
+Free State,South Africa
+Gauteng,South Africa
+Mpumalanga,South Africa
+Limpopo,South Africa
+KwaZulu-Natal,South Africa
+Eastern Cape,South Africa
+Luapula,Zambia
+Northern,Zambia
+Central,Zambia
+Copperbelt,Zambia
+Eastern,Zambia
+Lusaka,Zambia
+North-Western,Zambia
+Southern,Zambia
+Western,Zambia
+Muchinga,Zambia
+Mashonaland Central,Zimbabwe
+Harare,Zimbabwe
+Matabeleland North,Zimbabwe
+Midlands,Zimbabwe
+Mashonaland East,Zimbabwe
+Manicaland,Zimbabwe
+Matabeleland South,Zimbabwe
+Bulawayo,Zimbabwe
+Masvingo,Zimbabwe
+Mashonaland West,Zimbabwe

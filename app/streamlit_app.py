@@ -549,10 +549,23 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                 for country, region in selected_specific_regions:
                     region_found = False
                     
+                    # Get api_name for this region from subregions data if available
+                    region_api_name = None
+                    matching_region_data = subregions_df[
+                        (subregions_df["Country"] == country) & 
+                        (subregions_df["Subregion"] == region)
+                    ]
+                    if not matching_region_data.empty and "api_name" in subregions_df.columns:
+                        api_name_val = matching_region_data["api_name"].iloc[0]
+                        if pd.notnull(api_name_val) and str(api_name_val).strip():
+                            region_api_name = str(api_name_val).strip()
+                    
                     # Try to find the subregion in the ADM1 GeoJSON data
                     for feature in admin1_geojson['features']:
-                        adm0_name = feature['properties'].get('adm0_name', '').strip()
-                        adm1_name = feature['properties'].get('name', '').strip()
+                        adm0_name = feature['properties'].get('adm0_name', '') or ''
+                        adm1_name = feature['properties'].get('name', '') or ''
+                        adm0_name = adm0_name.strip() if adm0_name else ''
+                        adm1_name = adm1_name.strip() if adm1_name else ''
                         
                         # Multiple name matching strategies for countries
                         country_matches = [
@@ -567,15 +580,19 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                             (country == "Cape Verde" and "cabo verde" in adm0_name.lower()),
                         ]
                         
-                        # Multiple name matching strategies for regions
-                        region_matches = [
-                            adm1_name.lower() == region.lower(),
-                            adm1_name.lower().replace(' ', '') == region.lower().replace(' ', ''),
-                            region.lower() in adm1_name.lower(),
-                            adm1_name.lower() in region.lower(),
-                            # Remove common suffixes/prefixes for better matching
-                            adm1_name.lower().replace('province', '').replace('region', '').replace('state', '').strip() == region.lower().replace('province', '').replace('region', '').replace('state', '').strip(),
-                        ]
+                        # Use api_name for exact matching if available, otherwise fallback to fuzzy matching
+                        if region_api_name:
+                            region_matches = [adm1_name == region_api_name]
+                        else:
+                            # Fallback to fuzzy matching strategies for regions without api_name
+                            region_matches = [
+                                adm1_name.lower() == region.lower(),
+                                adm1_name.lower().replace(' ', '') == region.lower().replace(' ', ''),
+                                region.lower() in adm1_name.lower(),
+                                adm1_name.lower() in region.lower(),
+                                # Remove common suffixes/prefixes for better matching
+                                adm1_name.lower().replace('province', '').replace('region', '').replace('state', '').strip() == region.lower().replace('province', '').replace('region', '').replace('state', '').strip(),
+                            ]
                         
                         if any(country_matches) and any(region_matches):
                             # Add the actual subregion shape to the map
@@ -736,7 +753,12 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                 goats_data = species_data["goats_data"]
                 sheep_data = species_data["sheep_data"]
                 
-                psi = 0.3  # Default PSI
+                # Get Political Stability Index from national data
+                country_data = national_df[national_df["Country"] == country]
+                if not country_data.empty:
+                    psi = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
+                else:
+                    psi = 0.3
                 cost_per_animal = get_country_cost(country)
                 political_mult = get_political_mult(psi)
                 coverage_frac = coverage / 100.0
@@ -1097,7 +1119,12 @@ with tabs[3]:
         goats_data = species_data["goats_data"]
         sheep_data = species_data["sheep_data"]
         
-        psi = 0.3  # Default, can be updated if available
+        # Get Political Stability Index from national data
+        country_data = national_df[national_df["Country"] == selected_country]
+        if not country_data.empty:
+            psi = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
+        else:
+            psi = 0.3
         cost_per_animal = get_country_cost(selected_country)
         political_mult = get_political_mult(psi)
         coverage_frac = coverage / 100.0

@@ -30,12 +30,9 @@ def read_xlsx(file_path: str, sheet_name: str = None) -> pd.DataFrame:
         ws = wb[sheet_name]
         data = list(ws.values)
         columns = list(data[0])
-        # Only keep required columns
-        required = ["Country", "Specie", "VADEMOS Forecasted Value", "Political_Stability_Index"]
-        col_indices = [i for i, c in enumerate(columns) if c in required]
-        filtered_data = [[row[i] if i < len(row) else None for i in col_indices] for row in data[1:]]
-        df = pd.DataFrame(filtered_data, columns=[columns[i] for i in col_indices])
-        audit_log.append(f"Read XLSX: {file_path} [{sheet_name}] (filtered columns)")
+        # Read all data without filtering - let validate functions handle column selection
+        df = pd.DataFrame(data[1:], columns=columns)
+        audit_log.append(f"Read XLSX: {file_path} [{sheet_name}] (all columns)")
         return df
     except Exception as e:
         audit_log.append(f"ERROR reading XLSX {file_path}: {e}")
@@ -59,15 +56,22 @@ def validate_national(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def validate_subregions(df: pd.DataFrame) -> pd.DataFrame:
+    # Debug: Show what columns we actually have
+    print(f"DEBUG - Subregions raw columns: {df.columns.tolist()}")
+    print(f"DEBUG - Subregions sample data:\n{df.head()}")
     
     required_cols = ["Country", "Subregion", "Specie", "100%_Coverage"]
     # Fill missing columns with default values
     for col in required_cols:
         if col not in df.columns:
-            df[col] = "Unknown"
+            df[col] = "Unknown" if col != "100%_Coverage" else 0
             audit_log.append(f"Missing column '{col}' in Subregions.xlsx. Defaulted.")
+        else:
+            audit_log.append(f"Found column '{col}' in Subregions.xlsx.")
     # Only keep required columns
     df = df[required_cols]
+    # Ensure 100%_Coverage is numeric
+    df["100%_Coverage"] = pd.to_numeric(df["100%_Coverage"], errors='coerce').fillna(0)
     return df
 
 def main():

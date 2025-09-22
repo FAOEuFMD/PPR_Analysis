@@ -58,7 +58,7 @@ This Streamlit dashboard estimates the cost of continental PPR (Peste des Petits
 ## Usage
 1. Install requirements:
    ```bash
-   pip install streamlit pandas numpy openpyxl plotly
+   pip install streamlit pandas numpy openpyxl plotly folium streamlit-folium
    ```
 2. Run the app:
    ```bash

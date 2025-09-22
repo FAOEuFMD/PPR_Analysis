@@ -3,6 +3,8 @@ pandas
 numpy
 openpyxl
 plotly
+folium
+streamlit-folium
 reportlab
 streamlit-aggrid
 streamlit-option-menu

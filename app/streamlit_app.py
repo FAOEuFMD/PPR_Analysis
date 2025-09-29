@@ -1300,7 +1300,7 @@ Political stability index (-2.5 weak; 2.5 strong), 2023: The average for 2023 ba
     st.dataframe(subregions_df.head(10), height=350)
     st.markdown('<div class="methodology-section">Data Sources</div>', unsafe_allow_html=True)
     st.markdown("""
-**Population data:** FAO. 2024. FAOSTAT Statistical Database. Food and Agriculture Organization of the United Nations. Available at: [https://www.fao.org/faostat/en/](https://www.fao.org/faostat/en/)
+**Population data:** FAO. 2023. FAOSTAT Statistical Database. Food and Agriculture Organization of the United Nations. Available at: [https://www.fao.org/faostat/en/](https://www.fao.org/faostat/en/)
 
 **Livestock density data:** FAO. 2024. Gridded Livestock of the World (GLW) 4: Gridded Livestock Density (Global - 2020 - 10 km). Food and Agriculture Organization of the United Nations. Available at: [https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704](https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704)
 

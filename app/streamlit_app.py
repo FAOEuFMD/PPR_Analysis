@@ -367,534 +367,489 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
                     selected_regions_data.extend(country_data.to_dict('records'))
         
         # Add Map visualization
-        if selected_countries:
-            st.markdown("---")
-            st.markdown("**Map of Selected Countries and Regions:**")
-            
-            # Create a folium map centered on Africa
-            m = folium.Map(
-                location=[0, 20],  # Center of Africa
-                zoom_start=3,
-                tiles=None  # We'll add custom tiles
-            )
-            
-            # Add the UN ClearMap WebTopo base layer
-            folium.TileLayer(
-                tiles='https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer/tile/{z}/{y}/{x}',
-                attr='UN Clear Map',
-                name='UN Clear Map',
-                overlay=False,
-                control=True
-            ).add_to(m)
-            
-            # Country coordinates (approximate centers for African countries)
-            country_coords = {
-                "Algeria": [28.0339, 1.6596],
-                "Angola": [-11.2027, 17.8739],
-                "Benin": [9.3077, 2.3158],
-                "Botswana": [-22.3285, 24.6849],
-                "Burkina Faso": [12.2383, -1.5616],
-                "Burundi": [-3.3731, 29.9189],
-                "Cameroon": [7.3697, 12.3547],
-                "Cape Verde": [16.5388, -24.0131],
-                "Central African Republic": [6.6111, 20.9394],
-                "Chad": [15.4542, 18.7322],
-                "Comoros": [-11.6455, 43.3333],
-                "Congo": [-0.2280, 15.8277],
-                "Democratic Republic of the Congo": [-4.0383, 21.7587],
-                "Djibouti": [11.8251, 42.5903],
-                "Egypt": [26.0975, 31.2357],
-                "Equatorial Guinea": [1.5000, 10.5000],
-                "Eritrea": [15.1794, 39.7823],
-                "Eswatini": [-26.5225, 31.4659],
-                "Ethiopia": [9.1450, 40.4897],
-                "Gabon": [-0.8037, 11.6094],
-                "Gambia": [13.4432, -15.3101],
-                "Ghana": [7.9465, -1.0232],
-                "Guinea": [9.9456, -9.6966],
-                "Guinea-Bissau": [11.8037, -15.1804],
-                "Côte d'Ivoire": [7.5400, -5.5471],
-                "Kenya": [-0.0236, 37.9062],
-                "Lesotho": [-29.6100, 28.2336],
-                "Liberia": [6.4281, -9.4295],
-                "Libya": [26.3351, 17.2283],
-                "Madagascar": [-18.7669, 46.8691],
-                "Malawi": [-13.2543, 34.3015],
-                "Mali": [17.5707, -3.9962],
-                "Mauritania": [21.0079, -10.9408],
-                "Mauritius": [-20.3484, 57.5522],
-                "Morocco": [31.7917, -7.0926],
-                "Mozambique": [-18.6657, 35.5296],
-                "Namibia": [-22.9576, 18.4904],
-                "Niger": [17.6078, 8.0817],
-                "Nigeria": [9.0765, 8.6753],
-                "Rwanda": [-1.9403, 29.8739],
-                "Sao Tome and Principe": [0.1864, 6.6131],
-                "Senegal": [14.4974, -14.4524],
-                "Seychelles": [-4.6796, 55.4920],
-                "Sierra Leone": [8.4606, -11.7799],
-                "Somalia": [5.1521, 46.1996],
-                "South Africa": [-30.5595, 22.9375],
-                "South Sudan": [6.8770, 31.3070],
-                "Sudan": [12.8628, 30.2176],
-                "United Republic of Tanzania": [-6.3690, 34.8888],
-                "Togo": [8.6195, 0.8248],
-                "Tunisia": [33.8869, 9.5375],
-                "Uganda": [1.3733, 32.2903],
-                "Zambia": [-13.1339, 27.8493],
-                "Zimbabwe": [-19.0154, 29.1549]
-            }
-            
-            # Country name mapping for REST Countries API
-            country_api_names = {
-                "Algeria": "algeria",
-                "Angola": "angola", 
-                "Benin": "benin",
-                "Botswana": "botswana",
-                "Burkina Faso": "burkina faso",
-                "Burundi": "burundi",
-                "Cameroon": "cameroon",
-                "Cape Verde": "cabo verde",
-                "Central African Republic": "central african republic",
-                "Chad": "chad",
-                "Comoros": "comoros",
-                "Congo": "congo",
-                "Democratic Republic of the Congo": "democratic republic of the congo",
-                "Djibouti": "djibouti",
-                "Egypt": "egypt",
-                "Equatorial Guinea": "equatorial guinea",
-                "Eritrea": "eritrea",
-                "Eswatini": "eswatini",
-                "Ethiopia": "ethiopia",
-                "Gabon": "gabon",
-                "Gambia": "gambia",
-                "Ghana": "ghana",
-                "Guinea": "guinea",
-                "Guinea-Bissau": "guinea-bissau",
-                "Côte d'Ivoire": "cote d'ivoire",
-                "Kenya": "kenya",
-                "Lesotho": "lesotho",
-                "Liberia": "liberia",
-                "Libya": "libya",
-                "Madagascar": "madagascar",
-                "Malawi": "malawi",
-                "Mali": "mali",
-                "Mauritania": "mauritania",
-                "Mauritius": "mauritius",
-                "Morocco": "morocco",
-                "Mozambique": "mozambique",
-                "Namibia": "namibia",
-                "Niger": "niger",
-                "Nigeria": "nigeria",
-                "Rwanda": "rwanda",
-                "Sao Tome and Principe": "sao tome and principe",
-                "Senegal": "senegal",
-                "Seychelles": "seychelles",
-                "Sierra Leone": "sierra leone",
-                "Somalia": "somalia",
-                "South Africa": "south africa",
-                "South Sudan": "south sudan",
-                "Sudan": "sudan",
-                "United Republic of Tanzania": "tanzania",
-                "Togo": "togo",
-                "Tunisia": "tunisia",
-                "Uganda": "uganda",
-                "Zambia": "zambia",
-                "Zimbabwe": "zimbabwe"
-            }
-            
-            # Add country shapes for selected countries
-            # Use a more reliable approach with cached GeoJSON data
-            @st.cache_data
-            def load_world_geojson():
-                try:
-                    # Use Natural Earth vector data for accurate country boundaries
-                    url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
-                    response = requests.get(url, timeout=10)
-                    if response.status_code == 200:
-                        return response.json()
-                except:
-                    pass
+if selected_countries:
+    st.markdown("---")
+    # Create a horizontal row: map title (left), parameters summary (right)
+    title_col, param_col = st.columns([2, 2])
+    with title_col:
+        st.markdown("**Map of Selected Countries and Regions:**")
+    with param_col:
+        st.markdown("<b>Parameters Summary</b>", unsafe_allow_html=True)
+        colA, colB = st.columns(2)
+        with colA:
+            st.markdown("<small><b>Coverage & Vaccination</b></small>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• 1st Year Coverage: <b>{coverage}%</b></span>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Wastage: <b>{wastage}%</b></span>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Channel: <b>{delivery_channel}</b> (x{delivery_mult:.2f})</span>", unsafe_allow_html=True)
+            st.markdown("<small><b>Newborn Estimation</b></small>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Goats: <b>{newborn_goats}%</b>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Sheep: <b>{newborn_sheep}%</b>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• 2nd Yr Coverage: <b>{second_year_coverage_val}%</b></span>", unsafe_allow_html=True)
+        with colB:
+            st.markdown("<small><b>Political Stability</b></small>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Low: <b>{thresh_low}</b> | High: <b>{thresh_high}</b></span>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• High Risk: <b>{mult_high_risk:.1f}x</b>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Mod: <b>{mult_moderate_risk:.1f}x</b>", unsafe_allow_html=True)
+            st.write(f"<span style='font-size:0.95em'>• Low: <b>{mult_low_risk:.1f}x</b>", unsafe_allow_html=True)
+            st.markdown("<small><b>Regional Cost (USD/animal)</b></small>", unsafe_allow_html=True)
+            for region, cost in st.session_state["regional_custom_cost"].items():
+                st.write(f"<span style='font-size:0.95em'>• {region}: <b>${cost:.3f}</b></span>", unsafe_allow_html=True)
+
+    # Create a folium map centered on Africa
+    m = folium.Map(
+        location=[0, 20],  # Center of Africa
+        zoom_start=3,
+        tiles=None  # We'll add custom tiles
+    )
+    # Add the UN ClearMap WebTopo base layer
+    folium.TileLayer(
+        tiles='https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer/tile/{z}/{y}/{x}',
+        attr='UN Clear Map',
+        name='UN Clear Map',
+        overlay=False,
+        control=True
+    ).add_to(m)
+    # Country coordinates (approximate centers for African countries)
+    country_coords = {
+        "Algeria": [28.0339, 1.6596],
+        "Angola": [-11.2027, 17.8739],
+        "Benin": [9.3077, 2.3158],
+        "Botswana": [-22.3285, 24.6849],
+        "Burkina Faso": [12.2383, -1.5616],
+        "Burundi": [-3.3731, 29.9189],
+        "Cameroon": [7.3697, 12.3547],
+        "Cape Verde": [16.5388, -24.0131],
+        "Central African Republic": [6.6111, 20.9394],
+        "Chad": [15.4542, 18.7322],
+        "Comoros": [-11.6455, 43.3333],
+        "Congo": [-0.2280, 15.8277],
+        "Democratic Republic of the Congo": [-4.0383, 21.7587],
+        "Djibouti": [11.8251, 42.5903],
+        "Egypt": [26.0975, 31.2357],
+        "Equatorial Guinea": [1.5000, 10.5000],
+        "Eritrea": [15.1794, 39.7823],
+        "Eswatini": [-26.5225, 31.4659],
+        "Ethiopia": [9.1450, 40.4897],
+        "Gabon": [-0.8037, 11.6094],
+        "Gambia": [13.4432, -15.3101],
+        "Ghana": [7.9465, -1.0232],
+        "Guinea": [9.9456, -9.6966],
+        "Guinea-Bissau": [11.8037, -15.1804],
+        "Côte d'Ivoire": [7.5400, -5.5471],
+        "Kenya": [-0.0236, 37.9062],
+        "Lesotho": [-29.6100, 28.2336],
+        "Liberia": [6.4281, -9.4295],
+        "Libya": [26.3351, 17.2283],
+        "Madagascar": [-18.7669, 46.8691],
+        "Malawi": [-13.2543, 34.3015],
+        "Mali": [17.5707, -3.9962],
+        "Mauritania": [21.0079, -10.9408],
+        "Mauritius": [-20.3484, 57.5522],
+        "Morocco": [31.7917, -7.0926],
+        "Mozambique": [-18.6657, 35.5296],
+        "Namibia": [-22.9576, 18.4904],
+        "Niger": [17.6078, 8.0817],
+        "Nigeria": [9.0765, 8.6753],
+        "Rwanda": [-1.9403, 29.8739],
+        "Sao Tome and Principe": [0.1864, 6.6131],
+        "Senegal": [14.4974, -14.4524],
+        "Seychelles": [-4.6796, 55.4920],
+        "Sierra Leone": [8.4606, -11.7799],
+        "Somalia": [5.1521, 46.1996],
+        "South Africa": [-30.5595, 22.9375],
+        "South Sudan": [6.8770, 31.3070],
+        "Sudan": [12.8628, 30.2176],
+        "United Republic of Tanzania": [-6.3690, 34.8888],
+        "Togo": [8.6195, 0.8248],
+        "Tunisia": [33.8869, 9.5375],
+        "Uganda": [1.3733, 32.2903],
+        "Zambia": [-13.1339, 27.8493],
+        "Zimbabwe": [-19.0154, 29.1549]
+    }
+    
+    # ISO3 mapping (critical for geoBoundaries)
+    country_iso3 = {
+        "Algeria": "DZA",
+        "Angola": "AGO", 
+        "Benin": "BEN",
+        "Botswana": "BWA",
+        "Burkina Faso": "BFA",
+        "Burundi": "BDI",
+        "Cameroon": "CMR",
+        "Cape Verde": "CPV",
+        "Central African Republic": "CAF",
+        "Chad": "TCD",
+        "Comoros": "COM",
+        "Congo": "COG",
+        "Democratic Republic of the Congo": "COD",
+        "Djibouti": "DJI",
+        "Egypt": "EGY",
+        "Equatorial Guinea": "GNQ",
+        "Eritrea": "ERI",
+        "Eswatini": "SWZ",
+        "Ethiopia": "ETH",
+        "Gabon": "GAB",
+        "Gambia": "GMB",
+        "Ghana": "GHA",
+        "Guinea": "GIN",
+        "Guinea-Bissau": "GNB",
+        "Côte d'Ivoire": "CIV",
+        "Kenya": "KEN",
+        "Lesotho": "LSO",
+        "Liberia": "LBR",
+        "Libya": "LBY",
+        "Madagascar": "MDG",
+        "Malawi": "MWI",
+        "Mali": "MLI",
+        "Mauritania": "MRT",
+        "Mauritius": "MUS",
+        "Morocco": "MAR",
+        "Mozambique": "MOZ",
+        "Namibia": "NAM",
+        "Niger": "NER",
+        "Nigeria": "NGA",
+        "Rwanda": "RWA",
+        "Sao Tome and Principe": "STP",
+        "Senegal": "SEN",
+        "Seychelles": "SYC",
+        "Sierra Leone": "SLE",
+        "Somalia": "SOM",
+        "South Africa": "ZAF",
+        "South Sudan": "SSD",
+        "Sudan": "SDN",
+        "United Republic of Tanzania": "TZA",
+        "Togo": "TGO",
+        "Tunisia": "TUN",
+        "Uganda": "UGA",
+        "Zambia": "ZMB",
+        "Zimbabwe": "ZWE"
+    }
+
+    # === Cached function: get ADM1 GeoJSON from geoBoundaries ===
+    @st.cache_data(ttl=86400)  # Cache for 24 hours
+    def get_adm1_geojson(iso3: str):
+        try:
+            meta_url = f"https://www.geoboundaries.org/api/current/gbOpen/{iso3}/ADM1"
+            meta_resp = requests.get(meta_url, timeout=10)
+            if meta_resp.status_code != 200:
                 return None
-            
-            @st.cache_data
-            def load_admin1_geojson():
-                try:
-                    # Load subnational administrative boundaries (states/provinces)
-                    url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson"
-                    response = requests.get(url, timeout=10)
-                    if response.status_code == 200:
-                        return response.json()
-                except:
-                    pass
+            meta = meta_resp.json()
+            gj_url = meta.get("gjDownloadURL", "").strip()
+            if not gj_url:
                 return None
-            
-            world_geojson = load_world_geojson()
-            admin1_geojson = load_admin1_geojson()
-            
-            # Check if any specific regions are selected (not just "All regions")
-            has_specific_regions = False
-            selected_specific_regions = []
-            for country in selected_countries:
-                region_option = st.session_state.get(f"region_option_{country}", "All regions")
-                if region_option == "Select specific regions":
-                    regions = st.session_state.get(f"regions_{country}", [])
-                    if regions:
-                        has_specific_regions = True
-                        for region in regions:
-                            selected_specific_regions.append((country, region))
-            
-            # Show specific subregions where selected
-            if has_specific_regions and admin1_geojson:
-                for country, region in selected_specific_regions:
-                    region_found = False
-                    
-                    # Get api_name for this region from subregions data if available
-                    region_api_name = None
-                    matching_region_data = subregions_df[
-                        (subregions_df["Country"] == country) & 
-                        (subregions_df["Subregion"] == region)
+            gj_resp = requests.get(gj_url, timeout=10)
+            if gj_resp.status_code == 200:
+                return gj_resp.json()
+        except Exception as e:
+            st.warning(f"Failed to load ADM1 for {iso3}: {str(e)}")
+            return None
+        return None
+
+    # === Cached function: world countries (fallback) ===
+    @st.cache_data
+    def load_world_geojson():
+        try:
+            url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson"
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                return response.json()
+        except:
+            pass
+        return None
+
+    world_geojson = load_world_geojson()
+
+    # Check if any specific regions are selected
+    has_specific_regions = False
+    selected_specific_regions = []
+    for country in selected_countries:
+        region_option = st.session_state.get(f"region_option_{country}", "All regions")
+        if region_option == "Select specific regions":
+            regions = st.session_state.get(f"regions_{country}", [])
+            if regions:
+                has_specific_regions = True
+                for region in regions:
+                    selected_specific_regions.append((country, region))
+
+    # === Handle specific subregions using geoBoundaries ===
+    if has_specific_regions:
+        for country, region in selected_specific_regions:
+            iso3 = country_iso3.get(country)
+            if not iso3:
+                st.warning(f"ISO3 code not found for {country}. Skipping subregion.")
+                continue
+
+            adm1_data = get_adm1_geojson(iso3)
+            region_found = False
+
+            if adm1_data:
+                for feature in adm1_data['features']:
+                    shape_name = feature['properties'].get('shapeName', '').strip()
+                    # Match using your Subregion value (case-insensitive, flexible)
+                    if (
+                        shape_name.lower() == region.lower() or
+                        shape_name.lower().replace(' ', '') == region.lower().replace(' ', '') or
+                        region.lower() in shape_name.lower() or
+                        shape_name.lower() in region.lower()
+                    ):
+                        folium.GeoJson(
+                            feature,
+                            style_function=lambda x: {
+                                'fillColor': 'red',
+                                'color': 'darkred',
+                                'weight': 2,
+                                'fillOpacity': 0.4,
+                                'dashArray': '5, 5'
+                            },
+                            popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
+                            tooltip=f"{region}, {country}"
+                        ).add_to(m)
+                        region_found = True
+                        break
+
+            if not region_found:
+                st.warning(f"Could not find shape for '{region}' in {country}. Showing country instead.")
+                # Fallback to country (handled below)
+
+    # === Handle "All regions" countries ===
+    if world_geojson:
+        for country in selected_countries:
+            region_option = st.session_state.get(f"region_option_{country}", "All regions")
+            if region_option == "All regions":
+                country_found = False
+                for feature in world_geojson['features']:
+                    country_name = feature['properties'].get('NAME', '').strip()
+                    name_matches = [
+                        country_name.lower() == country.lower(),
+                        country_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
+                        country.lower() in country_name.lower(),
+                        country_name.lower() in country.lower(),
+                        (country == "Democratic Republic of the Congo" and "congo" in country_name.lower() and "democratic" in country_name.lower()),
+                        (country == "Côte d'Ivoire" and ("ivory" in country_name.lower() or "cote" in country_name.lower())),
+                        (country == "United Republic of Tanzania" and "tanzania" in country_name.lower()),
+                        (country == "Cape Verde" and "cabo verde" in country_name.lower()),
                     ]
-                    if not matching_region_data.empty and "api_name" in subregions_df.columns:
-                        api_name_val = matching_region_data["api_name"].iloc[0]
-                        if pd.notnull(api_name_val) and str(api_name_val).strip():
-                            region_api_name = str(api_name_val).strip()
-                    
-                    # Try to find the subregion in the ADM1 GeoJSON data
-                    for feature in admin1_geojson['features']:
-                        adm0_name = feature['properties'].get('adm0_name', '') or ''
-                        adm1_name = feature['properties'].get('name', '') or ''
-                        adm0_name = adm0_name.strip() if adm0_name else ''
-                        adm1_name = adm1_name.strip() if adm1_name else ''
-                        
-                        # Multiple name matching strategies for countries
-                        country_matches = [
-                            adm0_name.lower() == country.lower(),
-                            adm0_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
-                            country.lower() in adm0_name.lower(),
-                            adm0_name.lower() in country.lower(),
-                            # Specific country name mappings
-                            (country == "Democratic Republic of the Congo" and "congo" in adm0_name.lower() and "democratic" in adm0_name.lower()),
-                            (country == "Côte d'Ivoire" and ("ivory" in adm0_name.lower() or "cote" in adm0_name.lower())),
-                            (country == "United Republic of Tanzania" and "tanzania" in adm0_name.lower()),
-                            (country == "Cape Verde" and "cabo verde" in adm0_name.lower()),
-                        ]
-                        
-                        # Use api_name for exact matching if available, otherwise fallback to fuzzy matching
-                        if region_api_name:
-                            region_matches = [adm1_name == region_api_name]
-                        else:
-                            # Fallback to fuzzy matching strategies for regions without api_name
-                            region_matches = [
-                                adm1_name.lower() == region.lower(),
-                                adm1_name.lower().replace(' ', '') == region.lower().replace(' ', ''),
-                                region.lower() in adm1_name.lower(),
-                                adm1_name.lower() in region.lower(),
-                                # Remove common suffixes/prefixes for better matching
-                                adm1_name.lower().replace('province', '').replace('region', '').replace('state', '').strip() == region.lower().replace('province', '').replace('region', '').replace('state', '').strip(),
-                            ]
-                        
-                        if any(country_matches) and any(region_matches):
-                            # Add the actual subregion shape to the map
-                            folium.GeoJson(
-                                feature,
-                                style_function=lambda x: {
-                                    'fillColor': 'red',
-                                    'color': 'darkred',
-                                    'weight': 2,
-                                    'fillOpacity': 0.4,
-                                    'dashArray': '5, 5'
-                                },
-                                popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
-                                tooltip=f"{region}, {country}"
-                            ).add_to(m)
-                            region_found = True
-                            break
-                    
-                    if not region_found:
-                        st.warning(f"Could not find shape data for {region} in {country}. Showing country shape instead.")
-                        # Fall back to country shape if subregion not found
-                        if world_geojson:
-                            for feature in world_geojson['features']:
-                                country_name = feature['properties'].get('NAME', '').strip()
-                                
-                                # Multiple name matching strategies
-                                name_matches = [
-                                    country_name.lower() == country.lower(),
-                                    country_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
-                                    country.lower() in country_name.lower(),
-                                    country_name.lower() in country.lower(),
-                                    # Specific country name mappings
-                                    (country == "Democratic Republic of the Congo" and "congo" in country_name.lower() and "democratic" in country_name.lower()),
-                                    (country == "Côte d'Ivoire" and ("ivory" in country_name.lower() or "cote" in country_name.lower())),
-                                    (country == "United Republic of Tanzania" and "tanzania" in country_name.lower()),
-                                    (country == "Cape Verde" and "cabo verde" in country_name.lower()),
-                                ]
-                                
-                                if any(name_matches):
-                                    folium.GeoJson(
-                                        feature,
-                                        style_function=lambda x: {
-                                            'fillColor': 'red',
-                                            'color': 'darkred',
-                                            'weight': 2,
-                                            'fillOpacity': 0.4,
-                                            'dashArray': '5, 5'
-                                        },
-                                        popup=folium.Popup(f"<b>{country}</b> (subregion shape not found)", parse_html=True),
-                                        tooltip=f"{country} (subregion shape not found)"
-                                    ).add_to(m)
-                                    break
-            
-            # Show full countries where "All regions" is selected
-            if world_geojson:
-                for country in selected_countries:
-                    # Check if this country has "All regions" selected
-                    region_option = st.session_state.get(f"region_option_{country}", "All regions")
-                    
-                    if region_option == "All regions":
-                        country_found = False
-                        
-                        # Try to find the country in the GeoJSON data
-                        for feature in world_geojson['features']:
-                            country_name = feature['properties'].get('NAME', '').strip()
-                            
-                            # Multiple name matching strategies
-                            name_matches = [
-                                country_name.lower() == country.lower(),
-                                country_name.lower().replace(' ', '') == country.lower().replace(' ', ''),
-                                country.lower() in country_name.lower(),
-                                country_name.lower() in country.lower(),
-                                # Specific country name mappings
-                                (country == "Democratic Republic of the Congo" and "congo" in country_name.lower() and "democratic" in country_name.lower()),
-                                (country == "Côte d'Ivoire" and ("ivory" in country_name.lower() or "cote" in country_name.lower())),
-                                (country == "United Republic of Tanzania" and "tanzania" in country_name.lower()),
-                                (country == "Cape Verde" and "cabo verde" in country_name.lower()),
-                            ]
-                            
-                            if any(name_matches):
-                                # Add the actual country shape to the map
-                                folium.GeoJson(
-                                    feature,
-                                    style_function=lambda x: {
-                                        'fillColor': 'red',
-                                        'color': 'darkred',
-                                        'weight': 2,
-                                        'fillOpacity': 0.4,
-                                        'dashArray': '5, 5'
-                                    },
-                                    popup=folium.Popup(f"<b>{country}</b>", parse_html=True),
-                                    tooltip=f"{country}"
-                                ).add_to(m)
-                                country_found = True
-                                break
-                        
-                        # If country shape not found, show a message
-                        if not country_found:
-                            st.warning(f"Could not find shape data for {country}. Using fallback marker.")
-                            coords = country_coords.get(country)
-                            if coords:
-                                folium.Marker(
-                                    location=coords,
-                                    popup=f"{country} (shape not available)",
-                                    tooltip=f"{country}",
-                                    icon=folium.Icon(color='red', icon='info-sign')
-                                ).add_to(m)
-            else:
-                st.error("Could not load country boundary data. Using markers instead.")
-                # Fallback to markers if GeoJSON fails
-                for country in selected_countries:
+                    if any(name_matches):
+                        folium.GeoJson(
+                            feature,
+                            style_function=lambda x: {
+                                'fillColor': 'red',
+                                'color': 'darkred',
+                                'weight': 2,
+                                'fillOpacity': 0.4,
+                                'dashArray': '5, 5'
+                            },
+                            popup=folium.Popup(f"<b>{country}</b>", parse_html=True),
+                            tooltip=f"{country}"
+                        ).add_to(m)
+                        country_found = True
+                        break
+                if not country_found:
+                    st.warning(f"Country shape not found for {country}. Using marker.")
                     coords = country_coords.get(country)
                     if coords:
                         folium.Marker(
                             location=coords,
-                            popup=f"{country}",
+                            popup=f"{country} (shape not available)",
                             tooltip=f"{country}",
                             icon=folium.Icon(color='red', icon='info-sign')
                         ).add_to(m)
-            
-            # Display the map
-            map_data = st_folium(m, width=700, height=400)
-            
-            # Add FAO disclaimer
-            st.caption("The boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever on the part of FAO concerning the legal status of any country, territory, city or area or of its authorities, or concerning the delimitation of its frontiers and boundaries")
-        
-        # Calculate and display results for selected regions
-        if selected_regions_data:
-            st.markdown("---")
-            st.markdown("**Custom Scenario Results:**")
-            
-            # Group data by Country and Subregion to aggregate species
-            from collections import defaultdict
-            grouped_data = defaultdict(lambda: {"goats_data": None, "sheep_data": None})
-            
-            for row_data in selected_regions_data:
-                country = row_data["Country"]
-                subregion = row_data["Subregion"] if pd.notnull(row_data["Subregion"]) else "Unknown"
-                key = (country, subregion)
-                
-                # Check for both 'Specie' and 'Species' columns
-                if "Specie" in row_data:
-                    specie_val = row_data["Specie"]
-                elif "Species" in row_data:
-                    specie_val = row_data["Species"]
-                else:
-                    specie_val = "Unknown"
-                specie = specie_val if pd.notnull(specie_val) else "Unknown"
-                
-                if specie == "Goats":
-                    grouped_data[key]["goats_data"] = row_data
-                elif specie == "Sheep":
-                    grouped_data[key]["sheep_data"] = row_data
-            
-            scenario_table = []
-            for (country, subregion), species_data in grouped_data.items():
-                goats_data = species_data["goats_data"]
-                sheep_data = species_data["sheep_data"]
-                
-                # Get Political Stability Index from national data
+    else:
+        st.error("Could not load country boundary data. Using markers.")
+        for country in selected_countries:
+            coords = country_coords.get(country)
+            if coords:
+                folium.Marker(
+                    location=coords,
+                    popup=f"{country}",
+                    tooltip=f"{country}",
+                    icon=folium.Icon(color='red', icon='info-sign')
+                ).add_to(m)
+
+
+    # Display map and disclaimer below the title/parameters row
+    map_data = st_folium(m, width=700, height=400)
+    st.caption("The boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever on the part of FAO concerning the legal status of any country, territory, city or area or of its authorities, or concerning the delimitation of its frontiers and boundaries")
+
+    # Add Calculate button below the map/parameters
+    calculate_clicked = st.button("Calculate")
+
+    # Only calculate and display results if button is pressed and there is data
+    if calculate_clicked and selected_regions_data:
+        st.markdown("---")
+        st.markdown("**Custom Scenario Results:**")
+
+        # Group data by Country and Subregion to aggregate species
+        from collections import defaultdict
+        grouped_data = defaultdict(lambda: {"goats_data": None, "sheep_data": None})
+
+        for row_data in selected_regions_data:
+            country = row_data["Country"]
+            subregion = row_data["Subregion"] if pd.notnull(row_data["Subregion"]) else "Unknown"
+            key = (country, subregion)
+
+            # Check for both 'Specie' and 'Species' columns
+            if "Specie" in row_data:
+                specie_val = row_data["Specie"]
+            elif "Species" in row_data:
+                specie_val = row_data["Species"]
+            else:
+                specie_val = "Unknown"
+            specie = specie_val if pd.notnull(specie_val) else "Unknown"
+
+            if specie == "Goats":
+                grouped_data[key]["goats_data"] = row_data
+            elif specie == "Sheep":
+                grouped_data[key]["sheep_data"] = row_data
+
+        scenario_table = []
+        for (country, subregion), species_data in grouped_data.items():
+            goats_data = species_data["goats_data"]
+            sheep_data = species_data["sheep_data"]
+
+            # Get Political Stability Index from national data
+            country_data = national_df[national_df["Country"] == country]
+            if not country_data.empty:
+                psi = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
+            else:
+                psi = 0.3
+            cost_per_animal = get_country_cost(country)
+            political_mult = get_political_mult(psi)
+            coverage_frac = coverage / 100.0
+
+            # Initialize totals
+            total_goats_y1 = total_sheep_y1 = total_goats_y2 = total_sheep_y2 = 0
+            total_doses_y1 = total_doses_y2 = total_cost_y1 = total_cost_y2 = total_wasted_y1 = total_wasted_y2 = 0
+
+            # Calculate for Goats
+            if goats_data:
+                pop_raw = goats_data["100%_Coverage"] if pd.notnull(goats_data["100%_Coverage"]) else 0
+                try:
+                    population = float(pop_raw) if pop_raw != "Unknown" else 0
+                except (ValueError, TypeError):
+                    population = 0
+
+                if population > 0:
+                    # Year 1 calculations for goats
+                    vaccinated_y1 = vaccinated_initial(population, coverage_frac)
+                    doses_y1 = doses_required(vaccinated_y1, wastage/100)
+                    cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
+                    cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
+                    wasted_y1 = doses_y1 - vaccinated_y1
+
+
+            # Year 2 calculations for goats
+            if goats_data and population > 0:
+                newborn_count = vaccinated_y1 * (newborn_goats/100)
+                vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
+                doses_y2 = doses_required(vaccinated_y2, wastage/100)
+                cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
+                cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
+                wasted_y2 = doses_y2 - vaccinated_y2
+
+                total_goats_y1 = vaccinated_y1
+                total_goats_y2 = vaccinated_y2
+                total_doses_y1 += doses_y1
+                total_doses_y2 += doses_y2
+                total_cost_y1 += cost_y1
+                total_cost_y2 += cost_y2
+                total_wasted_y1 += wasted_y1
+                total_wasted_y2 += wasted_y2
+
+            # Calculate for Sheep
+            if sheep_data:
+                pop_raw = sheep_data["100%_Coverage"] if pd.notnull(sheep_data["100%_Coverage"]) else 0
+                try:
+                    population = float(pop_raw) if pop_raw != "Unknown" else 0
+                except (ValueError, TypeError):
+                    population = 0
+
+                if population > 0:
+                    # Year 1 calculations for sheep
+                    vaccinated_y1 = vaccinated_initial(population, coverage_frac)
+                    doses_y1 = doses_required(vaccinated_y1, wastage/100)
+                    cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
+                    cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
+                    wasted_y1 = doses_y1 - vaccinated_y1
+
+                    # Year 2 calculations for sheep
+                    newborn_count = vaccinated_y1 * (newborn_sheep/100)
+                    vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
+                    doses_y2 = doses_required(vaccinated_y2, wastage/100)
+                    cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
+                    cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
+                    wasted_y2 = doses_y2 - vaccinated_y2
+
+                    total_sheep_y1 = vaccinated_y1
+                    total_sheep_y2 = vaccinated_y2
+                    total_doses_y1 += doses_y1
+                    total_doses_y2 += doses_y2
+                    total_cost_y1 += cost_y1
+                    total_cost_y2 += cost_y2
+                    total_wasted_y1 += wasted_y1
+                    total_wasted_y2 += wasted_y2
+
+            # Only add row if there's data for at least one species
+            if total_goats_y1 > 0 or total_sheep_y1 > 0:
+                # Get Political Stability Index for this country
                 country_data = national_df[national_df["Country"] == country]
                 if not country_data.empty:
-                    psi = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
+                    psi_display = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
                 else:
-                    psi = 0.3
-                cost_per_animal = get_country_cost(country)
-                political_mult = get_political_mult(psi)
-                coverage_frac = coverage / 100.0
-                
-                # Initialize totals
-                total_goats_y1 = total_sheep_y1 = total_goats_y2 = total_sheep_y2 = 0
-                total_doses_y1 = total_doses_y2 = total_cost_y1 = total_cost_y2 = total_wasted_y1 = total_wasted_y2 = 0
-                
-                # Calculate for Goats
-                if goats_data:
-                    pop_raw = goats_data["100%_Coverage"] if pd.notnull(goats_data["100%_Coverage"]) else 0
-                    try:
-                        population = float(pop_raw) if pop_raw != "Unknown" else 0
-                    except (ValueError, TypeError):
-                        population = 0
-                    
-                    if population > 0:
-                        # Year 1 calculations for goats
-                        vaccinated_y1 = vaccinated_initial(population, coverage_frac)
-                        doses_y1 = doses_required(vaccinated_y1, wastage/100)
-                        cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
-                        cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
-                        wasted_y1 = doses_y1 - vaccinated_y1
-                        
-                        # Year 2 calculations for goats
-                        newborn_count = vaccinated_y1 * (newborn_goats/100)
-                        vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
-                        doses_y2 = doses_required(vaccinated_y2, wastage/100)
-                        cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
-                        cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
-                        wasted_y2 = doses_y2 - vaccinated_y2
-                        
-                        total_goats_y1 = vaccinated_y1
-                        total_goats_y2 = vaccinated_y2
-                        total_doses_y1 += doses_y1
-                        total_doses_y2 += doses_y2
-                        total_cost_y1 += cost_y1
-                        total_cost_y2 += cost_y2
-                        total_wasted_y1 += wasted_y1
-                        total_wasted_y2 += wasted_y2
-                
-                # Calculate for Sheep
-                if sheep_data:
-                    pop_raw = sheep_data["100%_Coverage"] if pd.notnull(sheep_data["100%_Coverage"]) else 0
-                    try:
-                        population = float(pop_raw) if pop_raw != "Unknown" else 0
-                    except (ValueError, TypeError):
-                        population = 0
-                    
-                    if population > 0:
-                        # Year 1 calculations for sheep
-                        vaccinated_y1 = vaccinated_initial(population, coverage_frac)
-                        doses_y1 = doses_required(vaccinated_y1, wastage/100)
-                        cost_before_adj_y1 = cost_before_adj(doses_y1, cost_per_animal)
-                        cost_y1 = total_cost(cost_before_adj_y1, political_mult, delivery_mult)
-                        wasted_y1 = doses_y1 - vaccinated_y1
-                        
-                        # Year 2 calculations for sheep
-                        newborn_count = vaccinated_y1 * (newborn_sheep/100)
-                        vaccinated_y2 = second_year_coverage(newborn_count, second_year_coverage_val/100)
-                        doses_y2 = doses_required(vaccinated_y2, wastage/100)
-                        cost_before_adj_y2 = cost_before_adj(doses_y2, cost_per_animal)
-                        cost_y2 = total_cost(cost_before_adj_y2, political_mult, delivery_mult)
-                        wasted_y2 = doses_y2 - vaccinated_y2
-                        
-                        total_sheep_y1 = vaccinated_y1
-                        total_sheep_y2 = vaccinated_y2
-                        total_doses_y1 += doses_y1
-                        total_doses_y2 += doses_y2
-                        total_cost_y1 += cost_y1
-                        total_cost_y2 += cost_y2
-                        total_wasted_y1 += wasted_y1
-                        total_wasted_y2 += wasted_y2
-                
-                # Only add row if there's data for at least one species
-                if total_goats_y1 > 0 or total_sheep_y1 > 0:
-                    # Get Political Stability Index for this country
-                    country_data = national_df[national_df["Country"] == country]
-                    if not country_data.empty:
-                        psi_display = country_data["Political_Stability_Index"].iloc[0] if pd.notnull(country_data["Political_Stability_Index"].iloc[0]) else 0.3
-                    else:
-                        psi_display = 0.3
-                    
-                    scenario_table.append({
-                        "Country": country,
-                        "Political_Stability_Index": f"{psi_display:.3f}",
-                        "Subregion": subregion,
-                        "Goats Y1": int(total_goats_y1),
-                        "Sheep Y1": int(total_sheep_y1),
-                        "Total Y1": int(total_goats_y1 + total_sheep_y1),
-                        "Cost Y1": f"${total_cost_y1:,.2f}",
-                        "Doses Y1": int(total_doses_y1),
-                        "Wasted Y1": int(total_wasted_y1),
-                        "Goats Y2": int(total_goats_y2),
-                        "Sheep Y2": int(total_sheep_y2),
-                        "Total Y2": int(total_goats_y2 + total_sheep_y2),
-                        "Cost Y2": f"${total_cost_y2:,.2f}",
-                        "Doses Y2": int(total_doses_y2),
-                        "Wasted Y2": int(total_wasted_y2),
-                    })
+                    psi_display = 0.3
+
+                scenario_table.append({
+                    "Country": country,
+                    "Political_Stability_Index": f"{psi_display:.3f}",
+                    "Subregion": subregion,
+                    "Goats Y1": int(total_goats_y1),
+                    "Sheep Y1": int(total_sheep_y1),
+                    "Total Y1": int(total_goats_y1 + total_sheep_y1),
+                    "Cost Y1": f"${total_cost_y1:,.2f}",
+                    "Doses Y1": int(total_doses_y1),
+                    "Wasted Y1": int(total_wasted_y1),
+                    "Goats Y2": int(total_goats_y2),
+                    "Sheep Y2": int(total_sheep_y2),
+                    "Total Y2": int(total_goats_y2 + total_sheep_y2),
+                    "Cost Y2": f"${total_cost_y2:,.2f}",
+                    "Doses Y2": int(total_doses_y2),
+                    "Wasted Y2": int(total_wasted_y2),
+                })
+
+        if scenario_table:
+            scenario_table_df = pd.DataFrame(scenario_table)
+            # Display columns (hide Specie and Population for cleaner view)
+            display_cols = ["Country", "Political_Stability_Index", "Subregion", "Goats Y1", "Sheep Y1", "Total Y1", "Cost Y1", "Doses Y1", "Wasted Y1", 
+                           "Goats Y2", "Sheep Y2", "Total Y2", "Cost Y2", "Doses Y2", "Wasted Y2"]
+            scenario_display_df = scenario_table_df[display_cols]
             
-            if scenario_table:
-                scenario_table_df = pd.DataFrame(scenario_table)
-                # Display columns (hide Specie and Population for cleaner view)
-                display_cols = ["Country", "Political_Stability_Index", "Subregion", "Goats Y1", "Sheep Y1", "Total Y1", "Cost Y1", "Doses Y1", "Wasted Y1", 
-                               "Goats Y2", "Sheep Y2", "Total Y2", "Cost Y2", "Doses Y2", "Wasted Y2"]
-                scenario_display_df = scenario_table_df[display_cols]
-                
-                # Format numeric columns
-                for col in ["Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
-                    if col in scenario_display_df:
-                        scenario_display_df[col] = scenario_display_df[col].map(lambda x: f"{int(float(x)):,}" if pd.notnull(x) and x != 0 else "0")
-                
-                st.dataframe(scenario_display_df, height=min(len(scenario_display_df)*35+40, 400))
-                
-                # Summary totals
-                total_goats_y1 = sum([int(str(row["Goats Y1"]).replace(',', '')) for row in scenario_table])
-                total_sheep_y1 = sum([int(str(row["Sheep Y1"]).replace(',', '')) for row in scenario_table])
-                total_cost_y1 = sum([float(str(row["Cost Y1"]).replace('$', '').replace(',', '')) for row in scenario_table])
-                total_cost_y2 = sum([float(str(row["Cost Y2"]).replace('$', '').replace(',', '')) for row in scenario_table])
-                
-                st.markdown("**Scenario Totals:**")
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    st.metric("Total Goats Y1", f"{total_goats_y1:,}")
-                with col2:
-                    st.metric("Total Sheep Y1", f"{total_sheep_y1:,}")
-                with col3:
-                    st.metric("Total Cost Y1", f"${total_cost_y1:,.2f}")
-                with col4:
-                    st.metric("Total Cost Y2", f"${total_cost_y2:,.2f}")
-            else:
-                st.info("No data available for the selected regions.")
+            # Format numeric columns
+            for col in ["Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"]:
+                if col in scenario_display_df:
+                    scenario_display_df[col] = scenario_display_df[col].map(lambda x: f"{int(float(x)):,}" if pd.notnull(x) and x != 0 else "0")
+            
+            st.dataframe(scenario_display_df, height=min(len(scenario_display_df)*35+40, 400))
+            
+            # Summary totals
+            total_goats_y1 = sum([int(str(row["Goats Y1"]).replace(',', '')) for row in scenario_table])
+            total_sheep_y1 = sum([int(str(row["Sheep Y1"]).replace(',', '')) for row in scenario_table])
+            total_cost_y1 = sum([float(str(row["Cost Y1"]).replace('$', '').replace(',', '')) for row in scenario_table])
+            total_cost_y2 = sum([float(str(row["Cost Y2"]).replace('$', '').replace(',', '')) for row in scenario_table])
+            
+            st.markdown("**Scenario Totals:**")
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Total Goats Y1", f"{total_goats_y1:,}")
+            with col2:
+                st.metric("Total Sheep Y1", f"{total_sheep_y1:,}")
+            with col3:
+                st.metric("Total Cost Y1", f"${total_cost_y1:,.2f}")
+            with col4:
+                st.metric("Total Cost Y2", f"${total_cost_y2:,.2f}")
         else:
-            st.info("Please select specific regions to see custom scenario results.")
+            st.info("No data available for the selected regions.")
     else:
-        st.info("Please select countries to build your custom scenario.")
+        st.info("Please select specific regions to see custom scenario results.")
     
     # Only show parameters section if countries are selected
     if selected_countries:
@@ -902,29 +857,6 @@ This tool allows you to create targeted vaccination scenarios by adjusting param
         
         col1, col2 = st.columns(2)
         
-        with col1:
-            st.markdown("**Coverage & Vaccination Parameters:**")
-            st.write(f"• First Year Coverage: {coverage}%")
-            st.write(f"• Vaccine Wastage: {wastage}%")
-            st.write(f"• Delivery Channel: {delivery_channel}")
-            st.write(f"• Delivery Multiplier: {delivery_mult:.2f}")
-            
-            st.markdown("**Newborn Estimation:**")
-            st.write(f"• Goats Newborn Rate: {newborn_goats}% of initial population")
-            st.write(f"• Sheep Newborn Rate: {newborn_sheep}% of initial population")
-            st.write(f"• Second Year Coverage: {second_year_coverage_val}% of newborns")
-        
-        with col2:
-            st.markdown("**Political Stability Multipliers:**")
-            st.write(f"• Low Threshold: {thresh_low}")
-            st.write(f"• High Threshold: {thresh_high}")
-            st.write(f"• High Risk Multiplier: {mult_high_risk:.1f}x")
-            st.write(f"• Moderate Risk Multiplier: {mult_moderate_risk:.1f}x")
-            st.write(f"• Low Risk Multiplier: {mult_low_risk:.1f}x")
-            
-            st.markdown("**Regional Cost Settings:**")
-            for region, cost in st.session_state["regional_custom_cost"].items():
-                st.write(f"• {region}: ${cost:.3f}")
 
 with tabs[1]:
     st.subheader("African Continent Overview")

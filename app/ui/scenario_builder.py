@@ -1,0 +1,478 @@
+"""
+Scenario Builder tab for PPR Vaccination Cost Dashboard
+"""
+
+import streamlit as st
+import pandas as pd
+import folium
+import requests
+from cost_data import country_coords, country_iso3
+from src.calculations import (
+    vaccinated_initial, doses_required, cost_before_adj,
+    political_multiplier, delivery_channel_multiplier,
+    newborns, second_year_coverage, total_cost
+)
+
+# Check if streamlit-folium is available
+try:
+    from streamlit_folium import st_folium
+    FOLIUM_AVAILABLE = True
+except ImportError:
+    FOLIUM_AVAILABLE = False
+    st.error("""
+    Error: The streamlit-folium package is required for map visualization.
+    Install it with: pip install streamlit-folium
+    """)
+
+def format_table_values(df, numeric_columns):
+    """Format numeric values in DataFrame for display"""
+    df = df.copy()
+    for col in numeric_columns:
+        if col in df:
+            df[col] = df[col].map(lambda x: f"{int(float(x)):,}" if pd.notnull(x) and x != 0 else "0")
+    return df
+
+@st.cache_data(ttl=86400)
+def get_country_shape(country_name):
+    """Get country shape from UN geoservice"""
+    iso3 = country_iso3.get(country_name)
+    if not iso3:
+        return None
+    
+    try:
+        # UN geoservice API endpoint for country shapes (layer 109)
+        url = f"https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer/109/query"
+        params = {
+            'where': f"ISO3CD='{iso3}'",
+            'outFields': '*',
+            'returnGeometry': 'true',
+            'f': 'geojson'
+        }
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data and data.get('features'):
+                return data
+            else:
+                st.warning(f"No shape data found for {country_name}")
+        else:
+            st.error(f"Error fetching shape for {country_name}: {response.status_code}")
+    except Exception as e:
+        st.error(f"Error loading country shape: {str(e)}")
+    return None
+
+@st.cache_data(ttl=86400)
+def get_region_shape(country_name):
+    """Get regional shapes from geoBoundaries"""
+    iso3 = country_iso3.get(country_name)
+    if not iso3:
+        return None
+    
+    try:
+        meta_url = f"https://www.geoboundaries.org/api/current/gbOpen/{iso3}/ADM1"
+        meta_resp = requests.get(meta_url, timeout=10)
+        if meta_resp.status_code != 200:
+            return None
+            
+        meta = meta_resp.json()
+        gj_url = meta.get("gjDownloadURL", "").strip()
+        if not gj_url:
+            return None
+            
+        gj_resp = requests.get(gj_url, timeout=10)
+        if gj_resp.status_code == 200:
+            return gj_resp.json()
+    except Exception:
+        pass
+    return None
+
+# Pre-define map style configuration
+MAP_STYLE = {
+    "fillColor": "red",
+    "color": "darkred",
+    "weight": 2,
+    "fillOpacity": 0.4,
+    "dashArray": "5, 5"
+}
+
+def update_map_with_regions(m, selected_regions_data):
+    """Update map with selected regions"""
+    if not selected_regions_data:
+        return m
+        
+    # Process each country's selection
+    for country in set(entry['Country'] for entry in selected_regions_data):
+        region_option = st.session_state.get(f"region_option_{country}", "All regions")
+        
+        if region_option == "All regions":
+            # Load country shape
+            country_geojson = get_country_shape(country)
+            if country_geojson and country_geojson.get('features'):
+                folium.GeoJson(
+                    country_geojson,
+                    style_function=lambda x: MAP_STYLE,
+                    popup=folium.Popup(f"<b>{country}</b>", parse_html=True),
+                    tooltip=country
+                ).add_to(m)
+            else:
+                # Fallback to marker if no GeoJSON data
+                coords = country_coords.get(country)
+                if coords:
+                    folium.Marker(
+                        location=coords,
+                        popup=country,
+                        icon=folium.Icon(color='red', icon='info-sign')
+                    ).add_to(m)
+        else:
+            # Load specific regions
+            regions_geojson = get_region_shape(country)
+            selected_regions = st.session_state.get(f"regions_{country}", [])
+            
+            if regions_geojson and regions_geojson.get('features'):
+                for region in selected_regions:
+                    for feature in regions_geojson['features']:
+                        if region == feature['properties'].get('name', ''):
+                            folium.GeoJson(
+                                feature,
+                                style_function=lambda x: MAP_STYLE,
+                                popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
+                                tooltip=f"{region}, {country}"
+                            ).add_to(m)
+                            break
+            else:
+                # Fallback to marker if no GeoJSON data
+                coords = country_coords.get(country)
+                if coords:
+                    folium.Marker(
+                        location=coords,
+                        popup=country,
+                        icon=folium.Icon(color='red', icon='info-sign')
+                    ).add_to(m)
+    
+    return m
+
+@st.cache_data(show_spinner=False)
+def get_initial_map():
+    """Get cached initial map with error handling"""
+    try:
+        m = folium.Map(location=[0, 20], zoom_start=3, tiles=None)
+        folium.TileLayer(
+            tiles='https://geoservices.un.org/arcgis/rest/services/ClearMap_WebTopo/MapServer/tile/{z}/{y}/{x}',
+            attr='UN Clear Map',
+            name='UN Clear Map',
+            overlay=False,
+            control=True
+        ).add_to(m)
+        return m
+    except Exception as e:
+        st.error(f"Error initializing map: {str(e)}")
+        return None
+
+def render_tab(subregions_df):
+    """Render the Scenario Builder tab"""
+    
+    st.markdown("""
+    **Build Custom Vaccination Scenarios**
+
+    This tool allows you to create targeted vaccination scenarios by adjusting parameters in the sidebar and selecting specific countries and regions for analysis. Use the sidebar controls to modify coverage rates, regional costs, political stability factors, and delivery channels - all calculations will update automatically across all tabs. Below, you can select particular countries and their subnational regions to focus your analysis on specific geographic areas, such as border regions, episystems, or outbreak-prone zones. The results table will show vaccination costs and logistics only for your selected areas.
+
+    **Tab Guide:**
+    - **Overview**: Total vaccination impact across all of Africa
+    - **Regions & Countries**: Breakdown by African regions and individual countries  
+    - **Subregions**: Detailed view of subnational areas within a single country
+    - **Scenario Builder** (this tab): Create custom scenarios by selecting specific countries/regions
+    """)
+
+    st.markdown("---")
+    st.markdown("**Select Countries and Subnational Regions for Custom Scenario:**")
+    # Add parameter controls in sidebar
+    st.sidebar.markdown("### Scenario Parameters")
+    coverage_rate = st.sidebar.slider("Coverage Rate (%)", 50, 100, 80) / 100
+    wastage_rate = st.sidebar.slider("Wastage Rate (%)", 0, 30, 15) / 100
+    cost_per_animal = st.sidebar.slider("Cost per Animal ($)", 0.1, 1.0, 0.25, 0.05)
+    psi = st.sidebar.slider("Political Stability Index", -2.5, 2.5, 0.5, 0.1)
+    delivery_channel = st.sidebar.selectbox("Delivery Channel", ["Public", "Mixed", "Private"], index=1)
+    
+    st.sidebar.markdown("""
+    **Parameters Info:**
+    - Coverage Rate: Target percentage of animals to vaccinate
+    - Wastage Rate: Expected vaccine loss during distribution
+    - Cost per Animal: Base cost per animal for vaccination
+    - Political Stability Index: Country stability factor (-2.5 to 2.5)
+    - Delivery Channel: Method of vaccine delivery
+    """)
+    
+    # Load countries once and cache
+    if "available_countries" not in st.session_state:
+        st.session_state.available_countries = sorted(subregions_df["Country"].unique())
+    
+    # Store parameters in session state
+    if "scenario_params" not in st.session_state:
+        st.session_state.scenario_params = {}
+    st.session_state.scenario_params = {
+        'coverage_rate': coverage_rate,
+        'wastage_rate': wastage_rate,
+        'cost_per_animal': cost_per_animal,
+        'psi': psi,
+        'delivery_channel': delivery_channel
+    }
+    
+    selected_countries = st.multiselect(
+        "Select Countries:", 
+        st.session_state.available_countries, 
+        key="scenario_countries"
+    )
+    selected_regions_data = []
+    if selected_countries:
+        st.markdown("**Configure regions for each selected country:**")
+        for country in selected_countries:
+            st.markdown(f"**{country}:**")
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                region_option = st.radio(
+                    f"Regions for {country}:",
+                    ["All regions", "Select specific regions"],
+                    key=f"region_option_{country}"
+                )
+            with col2:
+                if region_option == "Select specific regions":
+                    country_regions = sorted(subregions_df[subregions_df["Country"] == country]["Subregion"].unique())
+                    selected_regions = st.multiselect(
+                        f"Select regions in {country}:",
+                        country_regions,
+                        key=f"regions_{country}"
+                    )
+                    for region in selected_regions:
+                        region_data = subregions_df[
+                            (subregions_df["Country"] == country) &
+                            (subregions_df["Subregion"] == region)
+                        ]
+                        selected_regions_data.extend(region_data.to_dict('records'))
+                else:
+                    country_data = subregions_df[subregions_df["Country"] == country]
+                    selected_regions_data.extend(country_data.to_dict('records'))
+
+        # Display the map after selections
+        st.markdown("---")
+        st.markdown("**Map of Selected Countries and Regions:**")
+        
+        if FOLIUM_AVAILABLE:
+            # Get map object (cached)
+            map_obj = get_initial_map()
+            if map_obj:
+                try:
+                    if selected_regions_data:
+                        with st.spinner("Loading region data..."):
+                            updated_map = update_map_with_regions(map_obj, selected_regions_data)
+                            st_folium(updated_map, width=800, height=400, key=f"scenario_map_{len(selected_regions_data)}")
+                    else:
+                        # Show initial map
+                        st_folium(map_obj, width=800, height=400, key="scenario_map_initial")
+                except Exception as e:
+                    st.error(f"Error loading map: {str(e)}")
+                    st.info("The map visualization is temporarily unavailable. You can still continue with region selection.")
+        st.caption("The boundaries and names shown and the designations used on this map do not imply the expression of any opinion whatsoever on the part of FAO concerning the legal status of any country, territory, city or area or of its authorities, or concerning the delimitation of its frontiers and boundaries")
+
+        # Add Calculate button and display results
+        calculate_clicked = st.button("Calculate", key="calculate_scenario")
+        if calculate_clicked and selected_regions_data:
+            display_scenario_results(selected_regions_data)
+
+def display_scenario_results(selected_regions_data):
+    """Display the results of scenario calculations"""
+    st.markdown("---")
+    st.markdown("**Custom Scenario Results:**")
+    
+    from collections import defaultdict
+    grouped_data = defaultdict(lambda: {"goats_data": None, "sheep_data": None})
+    
+    # Group data by Country and Subregion
+    for row_data in selected_regions_data:
+        country = row_data["Country"]
+        subregion = row_data["Subregion"] if pd.notnull(row_data["Subregion"]) else "Unknown"
+        key = (country, subregion)
+        
+        if "Specie" in row_data:
+            specie_val = row_data["Specie"]
+        elif "Species" in row_data:
+            specie_val = row_data["Species"]
+        else:
+            specie_val = "Unknown"
+        specie = specie_val if pd.notnull(specie_val) else "Unknown"
+        
+        if specie == "Goats":
+            grouped_data[key]["goats_data"] = row_data
+        elif specie == "Sheep":
+            grouped_data[key]["sheep_data"] = row_data
+    
+
+    # Build results table
+    results_table = []
+    for (country, subregion), species_data in grouped_data.items():
+        row = {"Country": country, "Subregion": subregion}
+        
+        # Calculate for both years
+        for year in [1, 2]:
+            # Get data for each species
+            goats_data = species_data["goats_data"] or {}
+            sheep_data = species_data["sheep_data"] or {}
+            
+            
+            def calculate_costs(data, year):
+                if not data:
+                    return {}
+                
+                try:
+                    # Get scenario parameters from session state
+                    params = st.session_state.scenario_params
+                    
+                    # Initial vaccination calculations with user-defined parameters
+                    base_population = float(data.get('100%_Coverage', 0))  # Base population from 100% coverage
+                    population = base_population
+                    coverage = params['coverage_rate']
+                    wastage = params['wastage_rate']
+                    cost_per_animal = params['cost_per_animal']
+                    psi = params['psi']  # Use PSI from user input
+                    delivery = params['delivery_channel']
+                    species = data.get('Specie') or data.get('Species', 'Unknown')
+                    
+                    # Year 1 calculations
+                    if year == 1:
+                        vacc_init = vaccinated_initial(population, coverage)
+                        doses = doses_required(vacc_init, wastage)
+                        cost_adj = cost_before_adj(doses, cost_per_animal)
+                        pol_mult = political_multiplier(psi)
+                        del_mult = delivery_channel_multiplier(delivery)
+                        final_cost = total_cost(cost_adj, pol_mult, del_mult)
+                        return {
+                            'animals_vaccinated': vacc_init,
+                            'doses_needed': doses,
+                            'doses_wasted': doses - vacc_init,
+                            'total_cost': final_cost
+                        }
+                    # Year 2 calculations
+                    else:
+                        vacc_init = vaccinated_initial(population, coverage)
+                        new_animals = newborns(species, vacc_init)
+                        vacc_y2 = second_year_coverage(new_animals)
+                        doses = doses_required(vacc_y2, wastage)
+                        cost_adj = cost_before_adj(doses, cost_per_animal)
+                        pol_mult = political_multiplier(psi)
+                        del_mult = delivery_channel_multiplier(delivery)
+                        final_cost = total_cost(cost_adj, pol_mult, del_mult)
+                        return {
+                            'animals_vaccinated': vacc_y2,
+                            'doses_needed': doses,
+                            'doses_wasted': doses - vacc_y2,
+                            'total_cost': final_cost
+                        }
+                except Exception as e:
+                    st.error(f"Calculation error: {str(e)}")
+                    return {}
+
+            # Calculate costs for each species
+            goat_results = calculate_costs(goats_data, year)
+            sheep_results = calculate_costs(sheep_data, year)
+
+            
+            # Extract values with fallbacks to 0
+            row[f"Goats Y{year}"] = goat_results.get('animals_vaccinated', 0)
+            row[f"Sheep Y{year}"] = sheep_results.get('animals_vaccinated', 0)
+            row[f"Total Y{year}"] = row[f"Goats Y{year}"] + row[f"Sheep Y{year}"]
+            row[f"Cost Y{year}"] = (goat_results.get('total_cost', 0) + 
+                                  sheep_results.get('total_cost', 0))
+            row[f"Doses Y{year}"] = (goat_results.get('doses_needed', 0) + 
+                                   sheep_results.get('doses_needed', 0))
+            row[f"Wasted Y{year}"] = (goat_results.get('doses_wasted', 0) + 
+                                    sheep_results.get('doses_wasted', 0))
+        
+        results_table.append(row)
+    
+    # Convert to DataFrame and format for display
+    results_df = pd.DataFrame(results_table)
+    
+    # Calculate campaign totals
+    total_animals_y1 = results_df["Total Y1"].sum()
+    total_animals_y2 = results_df["Total Y2"].sum()
+    total_doses_y1 = results_df["Doses Y1"].sum()
+    total_doses_y2 = results_df["Doses Y2"].sum()
+    total_wasted_y1 = results_df["Wasted Y1"].sum()
+    total_wasted_y2 = results_df["Wasted Y2"].sum()
+    total_cost_y1 = results_df["Cost Y1"].sum()
+    total_cost_y2 = results_df["Cost Y2"].sum()
+    
+    # Display campaign summary in styled containers
+    st.markdown("### Campaign Overview")
+    
+    # Parameters container with blue background
+    with st.container():
+        st.markdown(
+            """
+            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px;'>
+            <h4>Parameters Used</h4>
+            """,
+            unsafe_allow_html=True
+        )
+        params = st.session_state.scenario_params
+        st.markdown(f"""
+        - Coverage Rate: {params['coverage_rate']*100:.0f}%
+        - Wastage Rate: {params['wastage_rate']*100:.0f}%
+        - Cost per Animal: ${params['cost_per_animal']:.2f}
+        - Political Stability Index: {params['psi']:.1f}
+        - Delivery Channel: {params['delivery_channel']}
+        """)
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Results container with light green background
+    with st.container():
+        st.markdown(
+            """
+            <div style='background-color: #f0fff0; padding: 20px; border-radius: 10px; margin-top: 20px;'>
+            <h4>Campaign Totals</h4>
+            """,
+            unsafe_allow_html=True
+        )
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Year 1**")
+            st.markdown(f"""
+            - Animals Vaccinated: {int(total_animals_y1):,}
+            - Doses Required: {int(total_doses_y1):,}
+            - Doses Wasted: {int(total_wasted_y1):,}
+            - Total Cost: ${total_cost_y1:,.2f}
+            """)
+        
+        with col2:
+            st.markdown("**Year 2**")
+            st.markdown(f"""
+            - Animals Vaccinated: {int(total_animals_y2):,}
+            - Doses Required: {int(total_doses_y2):,}
+            - Doses Wasted: {int(total_wasted_y2):,}
+            - Total Cost: ${total_cost_y2:,.2f}
+            """)
+        
+        st.markdown(
+            f"""
+            <div style='text-align: center; margin-top: 15px;'>
+            <h3>Total Campaign Cost: ${(total_cost_y1 + total_cost_y2):,.2f}</h3>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("### Detailed Results by Region")
+    display_cols = [
+        "Country", "Subregion", "Goats Y1", "Sheep Y1", "Total Y1", "Cost Y1",
+        "Doses Y1", "Wasted Y1", "Goats Y2", "Sheep Y2", "Total Y2", "Cost Y2",
+        "Doses Y2", "Wasted Y2"
+    ]
+    numeric_cols = [
+        "Goats Y1", "Sheep Y1", "Total Y1", "Doses Y1", "Wasted Y1",
+        "Goats Y2", "Sheep Y2", "Total Y2", "Doses Y2", "Wasted Y2"
+    ]
+    
+    results_display_df = format_table_values(results_df[display_cols], numeric_cols)
+    st.dataframe(results_display_df, width="stretch")

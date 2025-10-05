@@ -12,16 +12,6 @@ from openpyxl import load_workbook
 audit_log = []
 logging.basicConfig(level=logging.INFO)
 
-def read_markdown(file_path: str) -> str:
-    try:
-        with open(file_path, encoding='utf-8') as f:
-            text = f.read()
-        audit_log.append(f"Read Markdown: {file_path}")
-        return text
-    except Exception as e:
-        audit_log.append(f"ERROR reading Markdown {file_path}: {e}")
-        raise
-
 def read_xlsx(file_path: str, sheet_name: str = None) -> pd.DataFrame:
     try:
         wb = load_workbook(file_path, data_only=True)
@@ -82,17 +72,9 @@ def validate_subregions(df: pd.DataFrame) -> pd.DataFrame:
 def main():
     base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     files = {
-        "methodology": os.path.join(base_path, "docs", "methodology.md"),
-        "regional_costs": os.path.join(base_path, "docs", "regional_costs.md"),
-        "country_case_costs": os.path.join(base_path, "docs", "country_case_costs.md"),
-        "data_sources": os.path.join(base_path, "docs", "data_sources.md"),
         "national": os.path.join(base_path, "data", "National.xlsx"),
         "subregions": os.path.join(base_path, "data", "Subregions.xlsx"),
     }
-    # Read Markdown files
-    docs = {}
-    for k in ["methodology", "regional_costs", "country_case_costs", "data_sources"]:
-        docs[k] = read_markdown(files[k])
     # Read XLSX files
     national_df = validate_national(read_xlsx(files["national"]))
     subregions_df = validate_subregions(read_xlsx(files["subregions"]))
@@ -101,10 +83,8 @@ def main():
     for entry in audit_log:
         logging.info(entry)
     return {
-        "docs": docs,
         "national_df": national_df,
         "subregions_df": subregions_df,
-        "audit_log": audit_log,
     }
 
 if __name__ == "__main__":

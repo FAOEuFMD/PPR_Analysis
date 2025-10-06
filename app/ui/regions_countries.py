@@ -13,7 +13,9 @@ def filter_ppr_free_countries(country_stats):
     # List of countries/zones to exclude as per WOAH June 2025
     ppr_free_countries = {
         "Botswana", "eSwatini", "Eswatini", "Lesotho", "Madagascar", 
-        "Mauritius", "Namibia", "South Africa", "Kingdom of eSwatini"
+        "Mauritius", "Namibia", "South Africa", "Kingdom of eSwatini",
+        # Never reported
+        "Cabo Verde", "Cape Verde", "Sao Tome and Principe", "Malawi", "Mozambique", "Zambia", "Zimbabwe"
     }
     
     # Track excluded countries

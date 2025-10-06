@@ -19,7 +19,7 @@ def render_tab(country_stats, national_df):
         st.markdown("""
         <div style='font-size:1.1em; color:#444;'>
         <b>Note:</b> As per the WOAH update of the PPR freedom map (June 2025), the following countries/zones are officially recognized as free from Peste des Petits Ruminants (PPR) and are excluded from this analysis.<br>
-        <span style='font-size:0.98em;'>See the <a href=\"https://rr-africa.woah.org/en/official-disease-status-of-african-members/\" target=\"_blank\">WOAH official disease status of African Members</a> for details.</span>
+        <span style='font-size:0.98em;'>See the <a href="https://rr-africa.woah.org/en/official-disease-status-of-african-members/" target="_blank">WOAH official disease status of African Members</a> for details.</span>
         <ul style="margin-top:10px;">
             <li>Botswana (country-wide)</li>
             <li>eSwatini (country-wide)</li>
@@ -29,13 +29,25 @@ def render_tab(country_stats, national_df):
             <li>Namibia (zone: south to the Veterinary Cordon Fence)</li>
             <li>South Africa (country-wide)</li>
         </ul>
+        <br>
+        <b>Additionally, the following countries have been excluded as they have never reported a PPR outbreak:</b>
+        <ul style="margin-top:10px;">
+            <li>Cabo Verde</li>
+            <li>Sao Tome and Principe</li>
+            <li>Malawi</li>
+            <li>Mozambique</li>
+            <li>Zambia</li>
+            <li>Zimbabwe</li>
+        </ul>
         </div>
         """, unsafe_allow_html=True)
     
     # List of countries/zones to exclude as per WOAH June 2025
     ppr_free_countries = {
         "Botswana", "eSwatini", "Eswatini", "Lesotho", "Madagascar", 
-        "Mauritius", "Namibia", "South Africa", "Kingdom of eSwatini"
+        "Mauritius", "Namibia", "South Africa", "Kingdom of eSwatini",
+        # Never reported
+        "Cabo Verde", "Cape Verde", "Sao Tome and Principe", "Malawi", "Mozambique", "Zambia", "Zimbabwe"
     }
     
     # Track countries for filtering summary

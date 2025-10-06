@@ -66,24 +66,29 @@ def get_region_shape(country_name):
     """Get regional shapes from geoBoundaries"""
     iso3 = country_iso3.get(country_name)
     if not iso3:
+        st.warning(f"No ISO3 code found for {country_name}")
         return None
     
     try:
         meta_url = f"https://www.geoboundaries.org/api/current/gbOpen/{iso3}/ADM1"
         meta_resp = requests.get(meta_url, timeout=10)
         if meta_resp.status_code != 200:
+            st.warning(f"Failed to get metadata for {country_name}: {meta_resp.status_code}")
             return None
             
         meta = meta_resp.json()
         gj_url = meta.get("gjDownloadURL", "").strip()
         if not gj_url:
+            st.warning(f"No GeoJSON URL found for {country_name}")
             return None
             
         gj_resp = requests.get(gj_url, timeout=10)
         if gj_resp.status_code == 200:
             return gj_resp.json()
-    except Exception:
-        pass
+        else:
+            st.warning(f"Failed to get GeoJSON for {country_name}: {gj_resp.status_code}")
+    except Exception as e:
+        st.error(f"Error fetching region shapes for {country_name}: {str(e)}")
     return None
 
 # Pre-define map style configuration
@@ -94,6 +99,8 @@ MAP_STYLE = {
     "fillOpacity": 0.4,
     "dashArray": "5, 5"
 }
+
+import difflib
 
 def update_map_with_regions(m, selected_regions_data):
     """Update map with selected regions"""
@@ -129,16 +136,51 @@ def update_map_with_regions(m, selected_regions_data):
             selected_regions = st.session_state.get(f"regions_{country}", [])
             
             if regions_geojson and regions_geojson.get('features'):
+
                 for region in selected_regions:
+                    found = False
+                    region_lower = region.lower().strip()
+                    
                     for feature in regions_geojson['features']:
-                        if region == feature['properties'].get('name', ''):
-                            folium.GeoJson(
-                                feature,
-                                style_function=lambda x: MAP_STYLE,
-                                popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
-                                tooltip=f"{region}, {country}"
-                            ).add_to(m)
+                        props = feature['properties']
+                        
+                        # Try all possible property names that might contain region name
+                        for prop_name in props.keys():
+                            if 'name' in prop_name.lower() or 'shap' in prop_name.lower():
+                                feature_name = str(props[prop_name]).lower().strip()
+                                
+                                # Try exact match first
+                                if feature_name == region_lower:
+                                    folium.GeoJson(
+                                        feature,
+                                        style_function=lambda x: MAP_STYLE,
+                                        popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
+                                        tooltip=f"{region}, {country}"
+                                    ).add_to(m)
+                                    found = True
+                                    break
+                                
+                                # Try fuzzy matching if exact match fails
+                                ratio = difflib.SequenceMatcher(None, feature_name, region_lower).ratio()
+                                if ratio > 0.85:  # Threshold for fuzzy matching
+                                    folium.GeoJson(
+                                        feature,
+                                        style_function=lambda x: MAP_STYLE,
+                                        popup=folium.Popup(f"<b>{region}, {country}</b>", parse_html=True),
+                                        tooltip=f"{region}, {country}"
+                                    ).add_to(m)
+                                    found = True
+                                    break
+                        
+                        if found:
                             break
+                            
+                    if not found:
+                        # Log region matching issue
+                        st.warning(
+                            f"Could not find shape data for region '{region}' in {country}. "
+                            "This might be due to naming differences between the data sources."
+                        )
             else:
                 # Fallback to marker if no GeoJSON data
                 coords = country_coords.get(country)
@@ -177,7 +219,8 @@ def render_tab(subregions_df):
     This tool allows you to create targeted vaccination scenarios by adjusting parameters in the sidebar and selecting specific countries and regions for analysis. Use the sidebar controls to modify coverage rates, regional costs, political stability factors, and delivery channels - all calculations will update automatically across all tabs. Below, you can select particular countries and their subnational regions to focus your analysis on specific geographic areas, such as border regions, episystems, or outbreak-prone zones. The results table will show vaccination costs and logistics only for your selected areas.
 
     **Tab Guide:**
-    - **Overview**: Total vaccination impact across all of Africa
+    - **Episystems**: Analyze vaccination scenarios for the eight transboundary epidemiological systems in Africa, focusing on cross-border animal movement patterns and disease risk factors
+    - **Continental Overview**: Total vaccination impact across all of Africa
     - **Regions & Countries**: Breakdown by African regions and individual countries  
     - **Subregions**: Detailed view of subnational areas within a single country
     - **Scenario Builder** (this tab): Create custom scenarios by selecting specific countries/regions
@@ -400,67 +443,66 @@ def display_scenario_results(selected_regions_data):
     total_wasted_y2 = results_df["Wasted Y2"].sum()
     total_cost_y1 = results_df["Cost Y1"].sum()
     total_cost_y2 = results_df["Cost Y2"].sum()
-    
-    # Display campaign summary in styled containers
-    st.markdown("### Campaign Overview")
-    
-    # Parameters container with blue background
-    with st.container():
-        st.markdown(
-            """
-            <div style='background-color: #f0f8ff; padding: 20px; border-radius: 10px;'>
-            <h4>Parameters Used</h4>
-            """,
-            unsafe_allow_html=True
-        )
-        params = st.session_state.scenario_params
-        st.markdown(f"""
-        - Coverage Rate: {params['coverage_rate']*100:.0f}%
-        - Wastage Rate: {params['wastage_rate']*100:.0f}%
-        - Cost per Animal: ${params['cost_per_animal']:.2f}
-        - Political Stability Index: {params['psi']:.1f}
-        - Delivery Channel: {params['delivery_channel']}
-        """)
-        st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Results container with light green background
-    with st.container():
-        st.markdown(
-            """
-            <div style='background-color: #f0fff0; padding: 20px; border-radius: 10px; margin-top: 20px;'>
-            <h4>Campaign Totals</h4>
-            """,
-            unsafe_allow_html=True
-        )
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Year 1**")
-            st.markdown(f"""
-            - Animals Vaccinated: {int(total_animals_y1):,}
-            - Doses Required: {int(total_doses_y1):,}
-            - Doses Wasted: {int(total_wasted_y1):,}
-            - Total Cost: ${total_cost_y1:,.2f}
-            """)
-        
-        with col2:
-            st.markdown("**Year 2**")
-            st.markdown(f"""
-            - Animals Vaccinated: {int(total_animals_y2):,}
-            - Doses Required: {int(total_doses_y2):,}
-            - Doses Wasted: {int(total_wasted_y2):,}
-            - Total Cost: ${total_cost_y2:,.2f}
-            """)
-        
-        st.markdown(
-            f"""
-            <div style='text-align: center; margin-top: 15px;'>
-            <h3>Total Campaign Cost: ${(total_cost_y1 + total_cost_y2):,.2f}</h3>
+    total_campaign_cost = total_cost_y1 + total_cost_y2
+
+    params = st.session_state.scenario_params
+    region_costs = {
+        'North Africa': f"${st.session_state.get('cost_slider_North Africa', '')}",
+        'West Africa': f"${st.session_state.get('cost_slider_West Africa', '')}",
+        'Central Africa': f"${st.session_state.get('cost_slider_Central Africa', '')}",
+        'East Africa': f"${st.session_state.get('cost_slider_East Africa', '')}",
+        'Southern Africa': f"${st.session_state.get('cost_slider_Southern Africa', '')}"
+    }
+
+    st.markdown("""
+    <div style='background-color:#f0f2f6; padding:20px; border-radius:10px; margin:20px 0;'>
+        <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
+            <div style='text-align:left; flex:1;'>
+                <div style='font-size:1.4em; font-weight:600; margin-bottom:10px;'>Total Campaign Cost</div>
+                <div style='font-size:2em; font-weight:700; color:#0066cc;'>
+                    ${:,.2f}
+                </div>
+                <div style='font-size:1.1em; color:#666; margin-top:10px;'>
+                    Year 1: ${:,.2f} &nbsp;|&nbsp; Year 2: ${:,.2f}
+                </div>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+            <div style='display:flex; flex:2;'>
+                <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
+                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Regional Costs:</div>
+                    <div style='font-size:1em; color:#444;'>
+                        <div style='margin-bottom:8px;'><b>North Africa:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>West Africa:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>Central Africa:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>East Africa:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>Southern Africa:</b> {}</div>
+                    </div>
+                </div>
+                <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
+                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Other Parameters:</div>
+                    <div style='font-size:1em; color:#444;'>
+                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {:,.0f}%</div>
+                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {:,.0f}%</div>
+                        <div style='margin-bottom:8px;'><b>Political Stability Index:</b> {:.1f}</div>
+                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>Cost per Animal:</b> ${:.2f}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """.format(
+        total_campaign_cost, total_cost_y1, total_cost_y2,
+        region_costs['North Africa'],
+        region_costs['West Africa'],
+        region_costs['Central Africa'],
+        region_costs['East Africa'],
+        region_costs['Southern Africa'],
+        params['coverage_rate']*100,
+        params['wastage_rate']*100,
+        params['psi'],
+        params['delivery_channel'],
+        params['cost_per_animal']
+    ), unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("### Detailed Results by Region")

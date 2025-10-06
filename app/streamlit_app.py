@@ -37,6 +37,7 @@ except ImportError as e:
 # Import our modules
 from ui import (
     scenario_builder,
+    episystems,
     continental_overview,
     regions_countries,
     subregions,
@@ -59,6 +60,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.image("public/EuFMD_2023.png", width=480)
 st.markdown('<div class="header-title">PPR Vaccination Cost Analysis</div>', unsafe_allow_html=True)
 
 # Initialize session state
@@ -225,6 +227,7 @@ for idx, row in national_df.iterrows():
 # Create tabs
 tabs = st.tabs([
     "Scenario Builder",
+    "Episystems",
     "Continental Overview", 
     "Regions & Countries",
     "Subregions",
@@ -236,13 +239,16 @@ with tabs[0]:
     scenario_builder.render_tab(subregions_df)
 
 with tabs[1]:
-    continental_overview.render_tab(country_stats, national_df)
+    episystems.render_tab(subregions_df)
 
 with tabs[2]:
-    regions_countries.render_tab(country_stats)
+    continental_overview.render_tab(country_stats, national_df)
 
 with tabs[3]:
-    subregions.render_tab(subregions_df, national_df)
+    regions_countries.render_tab(country_stats)
 
 with tabs[4]:
+    subregions.render_tab(subregions_df, national_df)
+
+with tabs[5]:
     methodology.render_tab(national_df)

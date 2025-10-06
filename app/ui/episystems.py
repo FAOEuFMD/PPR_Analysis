@@ -4,7 +4,7 @@ Episystems Analysis tab for PPR Vaccination Cost Dashboard
 
 import streamlit as st
 import pandas as pd
-from src.calculations import (
+from .calculations import (
     vaccinated_initial, doses_required, cost_before_adj,
     political_multiplier, delivery_channel_multiplier,
     newborns, second_year_coverage, total_cost

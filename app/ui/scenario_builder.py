@@ -7,7 +7,7 @@ import pandas as pd
 import folium
 import requests
 from cost_data import country_coords, country_iso3
-from ..src.calculations import (
+from src.calculations import (
     vaccinated_initial, doses_required, cost_before_adj,
     political_multiplier, delivery_channel_multiplier,
     newborns, second_year_coverage, total_cost

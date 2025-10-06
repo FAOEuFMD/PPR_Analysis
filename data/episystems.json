@@ -1,0 +1,300 @@
+{
+  "Chad-Sudan (DARFUR)": {
+    "Chad": [
+      "Ouaddai",
+      "Sila",
+      "Batha Est",
+      "Batha Ouest",
+      "Biltine"
+    ],
+    "Sudan": [
+      "North Darfur",
+      "South Darfur",
+      "West Darfur"
+    ]
+  },
+  "Karamoja": {
+    "Uganda": [
+      "Kotido",
+      "Kitgum",
+      "Moroto",
+      "Lira",
+      "Soroti"
+    ],
+    "Kenya": [
+      "Rift Valley"
+    ],
+    "Ethiopia": [
+      "SNNP"
+    ],
+    "South Sudan": [
+      "Eastern Equatoria"
+    ]
+  },
+  "Mano River": {
+    "Guinea": [
+      "Faranah",
+      "Kankan",
+      "N'Zerekore"
+    ],
+    "Sierra Leone": [
+      "Northern",
+      "Eastern"
+    ],
+    "Liberia": [
+      "Lofa",
+      "Nimba",
+      "Bong",
+      "Gbarpolu"
+    ],
+    "Côte d'Ivoire": [
+      "18 Montagnes",
+      "Denguele",
+      "Bafing",
+      "Haut-Sassandra",
+      "Worodougou"
+    ]
+  },
+  "Sahel": {
+    "Senegal": [
+      "Saint-Louis"
+    ],
+    "Mauritania": [
+      "Brakna",
+      "Tagant",
+      "Assaba",
+      "Gorgol",
+      "Guidimakha",
+      "Hodh Ech Chargi",
+      "Hodh El Gharbi"
+    ],
+    "Mali": [
+      "Bamako",
+      "Mopti",
+      "Tombouctou",
+      "Gao",
+      "Kidal",
+      "Segou"
+    ],
+    "Niger": [
+      "Agadez",
+      "Diffa",
+      "Dosso",
+      "Maradi",
+      "Niamey",
+      "Tahoua",
+      "Tillaberi",
+      "Zinder"
+    ],
+    "Chad": [
+      "Hadjer Lamis",
+      "Lac",
+      "Kanem",
+      "Barh El Gazal"
+    ],
+    "Burkina Faso": [
+      "Sahel",
+      "Nord",
+      "Centre-Nord",
+      "Est",
+      "Plateau Central",
+      "Centre-Est"
+    ],
+    "Benin": [
+      "Atacora",
+      "Alibori"
+    ],
+    "Nigeria": [
+      "Kebbi",
+      "Zamfara",
+      "Sokoto",
+      "Katsina",
+      "Kano",
+      "Jigawa",
+      "Yobe",
+      "Borno"
+    ]
+  },
+  "Southern Protection Zone": {
+    "Angola": [
+      "Moxico",
+      "Lunda Sul"
+    ],
+    "Burundi": [
+      "Bubanza",
+      "Bujumbura-Mairie",
+      "Bujumbura-Rural",
+      "Bururi",
+      "Cankuzo",
+      "Cibitoke",
+      "Gitega",
+      "Karuzi",
+      "Kayanza",
+      "Kirundo",
+      "Makamba",
+      "Muramvya",
+      "Muyinga",
+      "Mwaro",
+      "Ngozi",
+      "Rutana",
+      "Ruyigi",
+      "Waterbody"
+    ],
+    "Democratic Republic of the Congo": [
+      "Katanga",
+      "Sud-Kivu",
+      "Maniema",
+      "Kasai-Oriental",
+      "Kasai-Occidental"
+    ],
+    "Rwanda": [
+      "Butare",
+      "Byumba",
+      "Cyangugu",
+      "Gikongoro",
+      "Gisenyi",
+      "Gitarama",
+      "Kibungo",
+      "Kibuye",
+      "Kigali-ngali",
+      "Prefecture De La Ville De Kigali",
+      "Ruhengeri",
+      "Umutara"
+    ],
+    "United Republic of Tanzania": [
+      "Kigoma",
+      "Rukwa",
+      "Kagera",
+      "Tabora"
+    ],
+    "Zambia": [
+      "Luapula",
+      "Northern",
+      "North-Western"
+    ]
+  },
+  "Coastal Western Africa": {
+    "Ghana": [
+      "Northern"
+    ],
+    "Togo": [
+      "Centrale",
+      "Kara",
+      "Plateaux",
+      "Savanes"
+    ],
+    "Benin": [
+      "Borgou",
+      "Donga",
+      "Collines",
+      "Zou"
+    ],
+    "Nigeria": [
+      "Abia",
+      "Akwa Ibom",
+      "Anambra",
+      "Bayelsa",
+      "Benue",
+      "Cross River",
+      "Delta",
+      "Ebonyi",
+      "Edo",
+      "Ekiti"
+    ],
+    "Cameroon": [
+      "Sud-Ouest",
+      "Sud",
+      "Littoral",
+      "Ouest",
+      "Nord-Ouest",
+      "Centre",
+      "Est",
+      "Extreme-Nord"
+    ],
+    "Equatorial Guinea": [
+      "Annobon",
+      "Bioko Norte",
+      "Bioko Sur",
+      "Centro Sur",
+      "Kientem",
+      "Litoral",
+      "Welenzas"
+    ],
+    "Gabon": [
+      "ESTUAIRE",
+      "WOLEU-NTEM",
+      "MOYEN-OGOOUE",
+      "OGOOUE-IVINDO"
+    ],
+    "Congo": [
+      "Cuvette Ouest",
+      "Sangha"
+    ]
+  },
+  "Lake Chad Basin": {
+    "Nigeria": [
+      "Borno",
+      "Adamawa",
+      "Taraba",
+      "Gombe",
+      "Plateau"
+    ],
+    "Cameroon": [
+      "Adamaoua",
+      "Nord",
+      "Extreme-Nord"
+    ],
+    "Chad": [
+      "Logone Occidental",
+      "Tandjile Est",
+      "Tandjile Ouest",
+      "Kanem",
+      "Barh El Gazal",
+      "Lac",
+      "Hadjer Lamis",
+      "Mayo-Dala"
+    ],
+    "Central African Republic": [
+      "Ouham",
+      "Bamingui-bangora"
+    ],
+    "Niger": [
+      "Tillaberi",
+      "Zinder"
+    ]
+  },
+  "Nile": {
+    "Sudan": [
+      "Khartoum",
+      "Kassala",
+      "Gadaref",
+      "Al Jazeera"
+    ],
+    "Ethiopia": [
+      "Amhara"
+    ]
+  },
+  "Somali": {
+    "Kenya": [
+      "North Eastern Province"
+    ],
+    "Ethiopia": [
+      "Oromia",
+      "Somali"
+    ],
+    "Somalia": [
+      "Bay",
+      "Bakool",
+      "Gedo"
+    ],
+    "Djibouti": [
+      "Ali Sabieh",
+      "Dikhil"
+    ],
+    "Uganda": [
+      "Kitgum",
+      "Kotido",
+      "Moroto"
+    ]
+  }
+}

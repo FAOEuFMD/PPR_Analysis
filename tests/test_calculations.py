@@ -3,7 +3,7 @@ test_calculations.py
 Unit tests for calculations.py formulas.
 """
 import unittest
-from src.calculations import (
+from app.ui.calculations import (
     vaccinated_initial,
     doses_required,
     cost_before_adj,

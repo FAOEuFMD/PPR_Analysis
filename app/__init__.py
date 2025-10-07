@@ -2,11 +2,11 @@
 UI components for PPR Vaccination Cost Dashboard
 """
 
-from . import scenario_builder
-from . import continental_overview
-from . import regions_countries
-from . import subregions
-from . import methodology
+import scenario_builder
+import continental_overview
+import regions_countries
+import subregions
+import methodology
 
 __all__ = [
     'scenario_builder',

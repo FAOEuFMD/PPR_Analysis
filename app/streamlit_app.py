@@ -6,6 +6,11 @@ import streamlit as st
 import os
 import sys
 import pandas as pd
+import episystems
+import methodology
+import regions_countries
+import scenario_builder
+import subregions
 from cost_data import country_region_map, get_regional_costs
 
 def format_table_values(df, numeric_columns):
@@ -22,8 +27,13 @@ if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 try:
+    import sys
+    import os
+    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
     from data_load import main as load_data
-    from .ui.calculations import (
+    from calculations import (
         vaccinated_initial, doses_required, cost_before_adj,
         total_cost, second_year_coverage
     )
@@ -35,14 +45,7 @@ except ImportError as e:
     raise
 
 # Import our modules
-from ui import (
-    scenario_builder,
-    episystems,
-    continental_overview,
-    regions_countries,
-    subregions,
-    methodology
-)
+import continental_overview
 
 # Page configuration
 st.set_page_config(

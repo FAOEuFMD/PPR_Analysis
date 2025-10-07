@@ -23,7 +23,7 @@ if src_path not in sys.path:
 
 try:
     from data_load import main as load_data
-    from app.ui.calculations import (
+    from .ui.calculations import (
         vaccinated_initial, doses_required, cost_before_adj,
         total_cost, second_year_coverage
     )

@@ -7,19 +7,25 @@ import streamlit as st
 def render_tab(country_stats, national_df):
     """Render the Continental Overview tab"""
     st.markdown("<b>Continental Overview</b>", unsafe_allow_html=True)
-    
+
+    # Paragraph before the map (no 'Note:')
+    st.markdown("""
+    <div style='font-size:1.1em; color:#444;'>
+    As per the WOAH update of the PPR freedom map (June 2025), the following countries/zones are officially recognized as free from Peste des Petits Ruminants (PPR) and are excluded from this analysis.<br>
+    <span style='font-size:0.98em;'>See the <a href="https://rr-africa.woah.org/en/official-disease-status-of-african-members/" target="_blank">WOAH official disease status of African Members</a> for details.</span>
+    </div>
+    """, unsafe_allow_html=True)
+
     # Create two columns for map and country list
     col1, col2 = st.columns([3, 2])
-    
+
     with col1:
         # Display WOAH PPR Freedom Map
-        st.image("./public/PPR woah.png", caption="WOAH: Official PPR Freedom Map (June 2025)", width="stretch")
-    
+        st.image("./public/PPR woah.png", caption="WOAH: Official PPR Freedom Map (June 2025)", use_container_width=True)
+
     with col2:
         st.markdown("""
         <div style='font-size:1.1em; color:#444;'>
-        <b>Note:</b> As per the WOAH update of the PPR freedom map (June 2025), the following countries/zones are officially recognized as free from Peste des Petits Ruminants (PPR) and are excluded from this analysis.<br>
-        <span style='font-size:0.98em;'>See the <a href="https://rr-africa.woah.org/en/official-disease-status-of-african-members/" target="_blank">WOAH official disease status of African Members</a> for details.</span>
         <ul style="margin-top:10px;">
             <li>Botswana (country-wide)</li>
             <li>eSwatini (country-wide)</li>

@@ -228,37 +228,9 @@ def render_tab(subregions_df):
 
     st.markdown("---")
     st.markdown("**Select Countries and Subnational Regions for Custom Scenario:**")
-    # Add parameter controls in sidebar
-    st.sidebar.markdown("### Scenario Parameters")
-    coverage_rate = st.sidebar.slider("Coverage Rate (%)", 50, 100, 80) / 100
-    wastage_rate = st.sidebar.slider("Wastage Rate (%)", 0, 30, 15) / 100
-    cost_per_animal = st.sidebar.slider("Cost per Animal ($)", 0.1, 1.0, 0.25, 0.05)
-    psi = st.sidebar.slider("Political Stability Index", -2.5, 2.5, 0.5, 0.1)
-    delivery_channel = st.sidebar.selectbox("Delivery Channel", ["Public", "Mixed", "Private"], index=1)
-    
-    st.sidebar.markdown("""
-    **Parameters Info:**
-    - Coverage Rate: Target percentage of animals to vaccinate
-    - Wastage Rate: Expected vaccine loss during distribution
-    - Cost per Animal: Base cost per animal for vaccination
-    - Political Stability Index: Country stability factor (-2.5 to 2.5)
-    - Delivery Channel: Method of vaccine delivery
-    """)
-    
     # Load countries once and cache
     if "available_countries" not in st.session_state:
         st.session_state.available_countries = sorted(subregions_df["Country"].unique())
-    
-    # Store parameters in session state
-    if "scenario_params" not in st.session_state:
-        st.session_state.scenario_params = {}
-    st.session_state.scenario_params = {
-        'coverage_rate': coverage_rate,
-        'wastage_rate': wastage_rate,
-        'cost_per_animal': cost_per_animal,
-        'psi': psi,
-        'delivery_channel': delivery_channel
-    }
     
     selected_countries = st.multiselect(
         "Select Countries:", 
@@ -445,7 +417,7 @@ def display_scenario_results(selected_regions_data):
     total_cost_y2 = results_df["Cost Y2"].sum()
     total_campaign_cost = total_cost_y1 + total_cost_y2
 
-    params = st.session_state.scenario_params
+    config = st.session_state.get('config', {})
     region_costs = {
         'North Africa': f"${st.session_state.get('cost_slider_North Africa', '')}",
         'West Africa': f"${st.session_state.get('cost_slider_West Africa', '')}",
@@ -453,7 +425,6 @@ def display_scenario_results(selected_regions_data):
         'East Africa': f"${st.session_state.get('cost_slider_East Africa', '')}",
         'Southern Africa': f"${st.session_state.get('cost_slider_Southern Africa', '')}"
     }
-
     st.markdown("""
     <div style='background-color:#f0f2f6; padding:20px; border-radius:10px; margin:20px 0;'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
@@ -478,13 +449,16 @@ def display_scenario_results(selected_regions_data):
                     </div>
                 </div>
                 <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
-                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Other Parameters:</div>
+                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Scenario Parameters:</div>
                     <div style='font-size:1em; color:#444;'>
-                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {:,.0f}%</div>
-                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {:,.0f}%</div>
-                        <div style='margin-bottom:8px;'><b>Political Stability Index:</b> {:.1f}</div>
-                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {}</div>
-                        <div style='margin-bottom:8px;'><b>Cost per Animal:</b> ${:.2f}</div>
+                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Newborn Goats:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Newborn Sheep:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Second Year Coverage:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {} (Public: {}, Mixed: {}, Private: {})</div>
+                        <div style='margin-bottom:8px;'><b>Political Stability Risk:</b> High: {}, Moderate: {}, Low: {}</div>
+                        <div style='margin-bottom:8px;'><b>PSI Index:</b> {}</div>
                     </div>
                 </div>
             </div>
@@ -497,11 +471,19 @@ def display_scenario_results(selected_regions_data):
         region_costs['Central Africa'],
         region_costs['East Africa'],
         region_costs['Southern Africa'],
-        params['coverage_rate']*100,
-        params['wastage_rate']*100,
-        params['psi'],
-        params['delivery_channel'],
-        params['cost_per_animal']
+        config.get('coverage', 0),
+        config.get('newborn_goats', 0),
+        config.get('newborn_sheep', 0),
+        config.get('second_year_coverage', 0),
+        config.get('wastage', 0),
+        config.get('delivery_channel', ''),
+        config.get('delivery_multipliers', {}).get('Public', ''),
+        config.get('delivery_multipliers', {}).get('Mixed', ''),
+        config.get('delivery_multipliers', {}).get('Private', ''),
+        config.get('political_stability', {}).get('mult_high_risk', ''),
+        config.get('political_stability', {}).get('mult_moderate_risk', ''),
+        config.get('political_stability', {}).get('mult_low_risk', ''),
+        config.get('psi', '')
     ), unsafe_allow_html=True)
     
     st.markdown("---")

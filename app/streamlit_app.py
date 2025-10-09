@@ -63,7 +63,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.image("public/EuFMD_2023.png", width=480)
+
+col_logo, col_note = st.columns([2,3])
+with col_logo:
+    st.image("public/EuFMD_2023.png", width=480)
+with col_note:
+    st.markdown('<div style="font-size:1.1rem; color:#b22222; font-weight:600; margin-top:32px;">This tool is under development and currently being validated.</div>', unsafe_allow_html=True)
 st.markdown('<div class="header-title">PPR Vaccination Cost Analysis</div>', unsafe_allow_html=True)
 
 # Initialize session state
@@ -76,9 +81,7 @@ if "regional_cost_mode" not in st.session_state:
 with st.sidebar:
     st.header("Scenario Controls")
     scenario_name = st.text_input("Scenario Name", "Default Scenario")
-
     # Regional vaccination cost selection
-    st.markdown("**Regional Vaccination Cost Selection (USD/animal)**")
     costs = get_regional_costs()
     for row in costs:
         region = row["Region"]
@@ -97,37 +100,20 @@ with st.sidebar:
             label_visibility="collapsed"
         )
         st.session_state["regional_custom_cost"][region] = slider_val
-
     # Coverage settings
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Coverage % (First Year)</span>", unsafe_allow_html=True)
     coverage = st.slider("Coverage Target", 0, 100, 80)
-
-    st.markdown("---")
-    
     # Newborn settings
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Newborn Estimation Defaults (% of initial population)</span>", unsafe_allow_html=True)
     newborn_goats = st.number_input("Goats (% of initial population)", 0, 100, 60)
     newborn_sheep = st.number_input("Sheep (% of initial population)", 0, 100, 40)
-    
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Coverage in Year 2 (% of newborns)</span>", unsafe_allow_html=True)
     second_year_coverage_val = st.slider("Second Year Coverage", 0, 100, 100)
-
     # Wastage and delivery settings
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Vaccine Wastage (% of doses)</span>", unsafe_allow_html=True)
     wastage = st.slider("Wastage Rate", 0, 100, 10)
-    
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Delivery Channel</span>", unsafe_allow_html=True)
     delivery_channel = st.radio("Delivery Channel", ["Public", "Mixed", "Private"], index=1)
-
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Delivery Channel Multipliers</span>", unsafe_allow_html=True)
     del_mult_public = st.number_input("Public", 0.0, 5.0, 1.2)
     del_mult_mixed = st.number_input("Mixed", 0.0, 5.0, 1.0)
     del_mult_private = st.number_input("Private", 0.0, 5.0, 0.85)
-
     # Political stability settings
-    st.markdown("---")
-    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Political Stability Index Multiplier Thresholds</span>", unsafe_allow_html=True)
-    st.caption("Lower or negative index = less stable = higher cost.\nThresholds: Below low = high risk, above high = low risk.")
+    st.markdown("<span style='font-weight:600;font-size:1.1rem;'>Political Stability Index (PSI)</span>", unsafe_allow_html=True)
     thresh_low = st.number_input("Low threshold", -2.5, 2.5, -1.0)
     thresh_high = st.number_input("High threshold", -2.5, 2.5, 0.0)
     mult_high_risk = st.number_input("Multiplier for high risk (index < low)", 1.0, 5.0, 2.0)

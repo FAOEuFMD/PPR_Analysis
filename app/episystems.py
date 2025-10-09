@@ -32,21 +32,12 @@ def render_tab(subregions_df):
     [1] African Union – Inter-African Bureau for Animal Resources (AU-IBAR). (2025). Framework for PPR Eradication in Africa (Draft, 11 September 2025). Nairobi: AU-IBAR.
     """)
     
-    # Add parameter controls in sidebar with unique keys
-    st.sidebar.markdown("### Scenario Parameters")
-    coverage_rate = st.sidebar.slider("Coverage Rate (%)", 50, 100, 80, key="episystem_coverage") / 100
-    wastage_rate = st.sidebar.slider("Wastage Rate (%)", 0, 30, 15, key="episystem_wastage") / 100
-    cost_per_animal = st.sidebar.slider("Cost per Animal ($)", 0.1, 1.0, 0.25, 0.05, key="episystem_cost")
-    psi = st.sidebar.slider("Political Stability Index", -2.5, 2.5, 0.5, 0.1, key="episystem_psi")
-    delivery_channel = st.sidebar.selectbox("Delivery Channel", ["Public", "Mixed", "Private"], index=1, key="episystem_delivery")
-    
-    # Store parameters in session state
+    # Read parameter values from main sidebar config
+    config = st.session_state.get('config', {})
     st.session_state.scenario_params = {
-        'coverage_rate': coverage_rate,
-        'wastage_rate': wastage_rate,
-        'cost_per_animal': cost_per_animal,
-        'psi': psi,
-        'delivery_channel': delivery_channel
+        'coverage_rate': config.get('coverage', 0) / 100,
+        'wastage_rate': config.get('wastage', 0) / 100,
+        'delivery_channel': config.get('delivery_channel', 'Mixed')
     }
     
     # Display the PPR episystems map and episystems info side by side
@@ -224,27 +215,34 @@ def display_scenario_results(selected_regions_data, episystems_data):
             def calculate_costs(data, year):
                 if data is None:
                     return {}
-                
                 try:
                     # Get scenario parameters from session state
                     params = st.session_state.scenario_params
-                    
                     # Initial vaccination calculations with user-defined parameters
                     population = float(data['100%_Coverage'])  # Base population from 100% coverage
                     coverage = params['coverage_rate']
                     wastage = params['wastage_rate']
-                    cost_per_animal = params['cost_per_animal']
-                    psi = params['psi']  # Use PSI from user input
+                    region = data.get('Region', 'West Africa')
+                    cost_per_animal = st.session_state.get(f"cost_slider_{region}", 0.25)
                     delivery = params['delivery_channel']
                     species = data.get('Specie') or data.get('Species', 'Unknown')
-                    
+                    # --- FIX: Get PSI index for country and apply correct multiplier ---
+                    # Assume data['PSI'] or similar column exists, fallback to config/country lookup if needed
+                    psi_index = None
+                    if 'PSI' in data:
+                        psi_index = float(data['PSI'])
+                    elif 'psi_index' in data:
+                        psi_index = float(data['psi_index'])
+                    else:
+                        # fallback: try config or set to 0.5 (medium risk)
+                        psi_index = st.session_state.get('country_psi', {}).get(data.get('Country'), 0.5)
+                    pol_mult = political_multiplier(psi_index)
+                    del_mult = delivery_channel_multiplier(delivery)
                     # Year 1 calculations
                     if year == 1:
                         vacc_init = vaccinated_initial(population, coverage)
                         doses = doses_required(vacc_init, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
-                        del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {
                             'animals_vaccinated': vacc_init,
@@ -259,8 +257,6 @@ def display_scenario_results(selected_regions_data, episystems_data):
                         vacc_y2 = second_year_coverage(new_animals)
                         doses = doses_required(vacc_y2, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
-                        del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {
                             'animals_vaccinated': vacc_y2,
@@ -305,10 +301,8 @@ def display_scenario_results(selected_regions_data, episystems_data):
     # Display campaign summary in styled containers
     st.markdown("### Campaign Overview")
 
-    params = st.session_state.scenario_params
+    config = st.session_state.get('config', {})
     total_campaign_cost = total_cost_y1 + total_cost_y2
-
-    # Get regional costs from session state (same as continental_overview.py)
     region_costs = {
         'North Africa': f"${st.session_state.get('cost_slider_North Africa', '')}",
         'West Africa': f"${st.session_state.get('cost_slider_West Africa', '')}",
@@ -316,7 +310,6 @@ def display_scenario_results(selected_regions_data, episystems_data):
         'East Africa': f"${st.session_state.get('cost_slider_East Africa', '')}",
         'Southern Africa': f"${st.session_state.get('cost_slider_Southern Africa', '')}"
     }
-
     st.markdown("""
     <div style='background-color:#f0f2f6; padding:20px; border-radius:10px; margin:20px 0;'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
@@ -341,12 +334,15 @@ def display_scenario_results(selected_regions_data, episystems_data):
                     </div>
                 </div>
                 <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
-                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Other Parameters:</div>
+                    <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Scenario Parameters:</div>
                     <div style='font-size:1em; color:#444;'>
-                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {:,.0f}%</div>
-                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {:,.0f}%</div>
-                        <div style='margin-bottom:8px;'><b>Political Stability Index:</b> {:.1f}</div>
-                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Newborn Rates:</b> Goats: {}%, Sheep: {}%</div>
+                        <div style='margin-bottom:8px;'><b>Second Year Coverage:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {}%</div>
+                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {} (Public: {}, Mixed: {}, Private: {})</div>
+                        <div style='margin-bottom:8px;'><b>Political Stability Risk:</b> High: {}, Moderate: {}, Low: {}</div>
+                        <div style='margin-bottom:8px;'><b>PSI Index:</b> {}</div>
                     </div>
                 </div>
             </div>
@@ -359,10 +355,19 @@ def display_scenario_results(selected_regions_data, episystems_data):
         region_costs['Central Africa'],
         region_costs['East Africa'],
         region_costs['Southern Africa'],
-        params['coverage_rate']*100,
-        params['wastage_rate']*100,
-        params['psi'],
-        params['delivery_channel']
+        config.get('coverage', 0),
+        config.get('newborn_goats', 0),
+        config.get('newborn_sheep', 0),
+        config.get('second_year_coverage', 0),
+        config.get('wastage', 0),
+        config.get('delivery_channel', ''),
+        config.get('delivery_multipliers', {}).get('Public', ''),
+        config.get('delivery_multipliers', {}).get('Mixed', ''),
+        config.get('delivery_multipliers', {}).get('Private', ''),
+        config.get('political_stability', {}).get('mult_high_risk', ''),
+        config.get('political_stability', {}).get('mult_moderate_risk', ''),
+        config.get('political_stability', {}).get('mult_low_risk', ''),
+        config.get('psi', '')
     ), unsafe_allow_html=True)
     
     # Create episystem level aggregation

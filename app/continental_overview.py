@@ -118,7 +118,8 @@ def render_tab(country_stats, national_df):
     
     # Calculate weighted cost and total campaign cost
     weighted_cost = total_cost_y1 / total_animals_y1 if total_animals_y1 > 0 else 0
-    total_campaign_cost = total_cost_y1 + total_cost_y2
+    total_cost_y3 = total_cost_y2 * 0.15
+    total_campaign_cost = total_cost_y1 + total_cost_y2 + total_cost_y3
     
     # Display Total Campaign Cost
     # Get regional costs from sliders
@@ -162,7 +163,9 @@ def render_tab(country_stats, national_df):
                     ${:,.2f}
                 </div>
                 <div style='font-size:1.1em; color:#666; margin-top:10px;'>
-                    Year 1: ${:,.2f} &nbsp;|&nbsp; Year 2: ${:,.2f}
+                    Year 1: ${:,.2f}<br>
+                    Year 2: ${:,.2f}<br>
+                    Year 3: ${:,.2f}
                 </div>
             </div>
             <div style='display:flex; flex:2;'>
@@ -191,7 +194,7 @@ def render_tab(country_stats, national_df):
         </div>
     </div>
     """.format(
-        total_campaign_cost, total_cost_y1, total_cost_y2,
+        total_campaign_cost, total_cost_y1, total_cost_y2, total_cost_y3,
         costs['North Africa'], costs['West Africa'], costs['Central Africa'],
         costs['East Africa'], costs['Southern Africa'],
         coverage,

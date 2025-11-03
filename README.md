@@ -56,15 +56,25 @@ This Streamlit dashboard estimates the cost of continental PPR (Peste des Petits
 - `methodology.md`, `regional_costs.md`, `country_case_costs.md`, `data_sources.md`: Documentation.
 
 ## Usage
-1. Install requirements:
+1. (Recommended) Create and activate a Python virtual environment:
+   ```bash
+   python -m venv venv
+   # On Windows (cmd):
+   venv\Scripts\activate
+   # On Windows (PowerShell):
+   .\venv\Scripts\Activate.ps1
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
+2. Install requirements in the activated environment:
    ```bash
    pip install streamlit pandas numpy openpyxl plotly folium streamlit-folium
    ```
-2. Run the app:
+3. Run the app:
    ```bash
    streamlit run app/streamlit_app.py
    ```
-3. Adjust parameters in the sidebar and explore results in each tab.
+4. Adjust parameters in the sidebar and explore results in each tab.
 
 ## Customization
 - **Regional Costs:** Set min/avg/max and custom values per region.

@@ -21,7 +21,7 @@ def render_tab(country_stats, national_df):
 
     with col1:
         # Display WOAH PPR Freedom Map
-        st.image("./public/PPR woah.png", caption="WOAH: Official PPR Freedom Map (June 2025)", use_container_width=True)
+        st.image("./public/PPR woah.png", caption="WOAH: Official PPR Freedom Map (June 2025)")
 
     with col2:
         st.markdown("""

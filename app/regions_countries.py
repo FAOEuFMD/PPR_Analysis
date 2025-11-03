@@ -175,11 +175,11 @@ def render_tab(country_stats):
             region_table[col] = region_table[col].map(lambda x: f"{int(x):,}")
     
     # Display region table
-    st.dataframe(region_table, height=region_table.shape[0]*35+40, use_container_width=True)
+    st.dataframe(region_table, height=region_table.shape[0]*35+40, width='stretch')
 
     # Create and display regional cost pie chart
     fig = create_region_cost_pie(region_table)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     # Country breakdown section
     st.subheader("Breakdown by Country")
@@ -207,8 +207,8 @@ def render_tab(country_stats):
         country_table.append(row)
     
     country_table_df = pd.DataFrame(country_table)
-    st.dataframe(country_table_df, height=country_table_df.shape[0]*35+40, use_container_width=True)
+    st.dataframe(country_table_df, height=country_table_df.shape[0]*35+40, width='stretch')
 
     # Create and display country cost bar chart
     bar_fig = create_country_cost_bars(country_table_df)
-    st.plotly_chart(bar_fig, use_container_width=True)
+    st.plotly_chart(bar_fig, width='stretch')

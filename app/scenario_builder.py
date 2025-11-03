@@ -348,8 +348,17 @@ def display_scenario_results(selected_regions_data):
                     population = base_population
                     coverage = params['coverage_rate']
                     wastage = params['wastage_rate']
-                    cost_per_animal = params['cost_per_animal']
-                    psi = params['psi']  # Use PSI from user input
+                    region = data.get('Region', 'West Africa')
+                    cost_per_animal = st.session_state.get(f"cost_slider_{region}", 0.25)
+                    # --- FIX: Get PSI index for country and apply correct multiplier ---
+                    psi_index = None
+                    if 'PSI' in data:
+                        psi_index = float(data['PSI'])
+                    elif 'psi_index' in data:
+                        psi_index = float(data['psi_index'])
+                    else:
+                        # fallback: try config or set to 0.5 (medium risk)
+                        psi_index = st.session_state.get('country_psi', {}).get(data.get('Country'), 0.5)
                     delivery = params['delivery_channel']
                     species = data.get('Specie') or data.get('Species', 'Unknown')
                     
@@ -358,7 +367,7 @@ def display_scenario_results(selected_regions_data):
                         vacc_init = vaccinated_initial(population, coverage)
                         doses = doses_required(vacc_init, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
+                        pol_mult = political_multiplier(psi_index)
                         del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {
@@ -374,7 +383,7 @@ def display_scenario_results(selected_regions_data):
                         vacc_y2 = second_year_coverage(new_animals)
                         doses = doses_required(vacc_y2, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
+                        pol_mult = political_multiplier(psi_index)
                         del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {

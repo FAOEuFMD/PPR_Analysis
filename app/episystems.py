@@ -44,7 +44,7 @@ def render_tab(subregions_df):
     col1, col2 = st.columns([1,1])
     
     with col1:
-        st.image("./public/pprepisystems.png", caption="PPR Episystems in Africa", width="stretch")
+        st.image("./public/pprepisystems.png", caption="PPR Episystems in Africa", width=800)
     
     with col2:
         st.markdown("""
@@ -436,7 +436,7 @@ def display_scenario_results(selected_regions_data, episystems_data):
     }
     episystem_agg = pd.concat([episystem_agg, pd.DataFrame([total_row])], ignore_index=True)
 
-    st.dataframe(episystem_agg, width="stretch")
+    st.dataframe(episystem_agg, width=1400)
 
     # Bar chart of total cost per episystem (exclude total row)
     import plotly.express as px
@@ -451,7 +451,7 @@ def display_scenario_results(selected_regions_data, episystems_data):
         text_auto='.2s'
     )
     fig.update_layout(xaxis_title='Episystem', yaxis_title='Total Campaign Cost (USD)', showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     # Display detailed results
     st.markdown("---")
@@ -478,4 +478,4 @@ def display_scenario_results(selected_regions_data, episystems_data):
     results_display_df['Cost Y2'] = results_display_df['Cost Y2'].apply(lambda x: f"${float(x):,.2f}" if pd.notnull(x) else "$0.00")
     results_display_df['Total Campaign Cost'] = results_display_df['Total Campaign Cost'].apply(lambda x: f"${float(x):,.2f}" if pd.notnull(x) else "$0.00")
 
-    st.dataframe(results_display_df, width="stretch")
+    st.dataframe(results_display_df, width=1400)

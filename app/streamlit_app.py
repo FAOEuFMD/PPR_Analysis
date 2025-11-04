@@ -1,3 +1,4 @@
+
 """
 Streamlit UI for PPR Eradication Cost Dashboard
 """
@@ -12,6 +13,7 @@ import regions_countries
 import scenario_builder
 import subregions
 from cost_data import country_region_map, get_regional_costs
+
 
 def format_table_values(df, numeric_columns):
     """Format numeric values in DataFrame for display"""
@@ -47,19 +49,32 @@ except ImportError as e:
 # Import our modules
 import continental_overview
 
-# Page configuration
-st.set_page_config(
-    page_title="PPR Vaccination Cost Analysis",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-# Custom header styles
+
+
+
+
+# Set Streamlit page config for wide layout
+st.set_page_config(layout="wide")
+
+# Custom header styles and full-width layout
 st.markdown("""
 <style>
 .header-title {font-size:2.2rem;font-weight:700;margin-bottom:0.5rem;}
 .header-sub {font-size:1.1rem;color:#555;}
 .kpi-card {background:#f8f9fa;border-radius:16px;padding:1.2rem;margin:0.5rem;box-shadow:0 2px 8px #eee;}
+.header-title {font-size:2.2rem;font-weight:700;margin-bottom:0.5rem;}
+.header-sub {font-size:1.1rem;color:#555;}
+.kpi-card {background:#f8f9fa;border-radius:16px;padding:1.2rem;margin:0.5rem;box-shadow:0 2px 8px #eee;}
+/* Force main container to full width */
+.main .block-container {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 

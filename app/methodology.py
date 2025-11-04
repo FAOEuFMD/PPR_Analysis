@@ -19,10 +19,19 @@ def render_tab(national_df):
     
     st.markdown('<div class="methodology-section">Approach</div>', unsafe_allow_html=True)
     st.markdown("""
-    The dashboard estimates the cost of PPR vaccination across Africa using a scenario-based macro calculator. 
-    Calculations are performed for each region, country, and subregion, based on user-adjustable parameters for 
-    coverage, newborn rates, wastage, delivery channel, and cost multipliers. Year 1 and Year 2 costs are 
-    calculated using population, coverage, wastage, and multipliers for political stability and delivery channel.
+    The dashboard estimates the cost of PPR vaccination across Africa using a scenario-based macro calculator. Calculations are performed for each region, country, and subregion, based on user-adjustable parameters for coverage, newborn rates, wastage, delivery channel, and cost multipliers.
+
+    **Calculation Steps:**
+    1. **Population Estimation:** As a base, we use the FAOSTAT Statistical Database^1^ for sheep and goat populations. To estimate current populations (beyond 2023), we apply machine learning predictive models to project population growth. These national population estimates are then distributed within countries using Gridded Livestock of the World (GLW) density data^2^, allowing us to estimate populations at subnational administrative levels.
+    2. **Year 1 Vaccination:** We apply a strategy of one vaccine per animal in the first year, at the chosen coverage rate (default 80%, adjustable). The number of animals to vaccinate is calculated as: Population × Coverage.
+    3. **Year 2 Vaccination:** In the second year, only newborns are vaccinated. We estimate newborns as 40% of the initial population for sheep and 60% for goats (defaults, both adjustable). The number of newborns is then multiplied by the coverage rate to get the number to vaccinate in year 2.
+    4. **Year 3 Cost:** The cost for year 3 is estimated as 15% of the previous year's (year 2) vaccination cost, representing follow-up and maintenance activities.
+    4. **Dosage Calculation:** For both years, the required number of vaccine doses is calculated by adding the wastage rate (adjustable) to the number of animals to vaccinate.
+    5. **Cost Calculation:** The total cost is calculated by multiplying the number of doses by the regional cost per animal, which is based on literature and field estimates (also adjustable).
+    6. **Delivery Channel Adjustment:** A delivery multiplier is applied to account for differences in cost between public, private, and mixed delivery programs. Mixed programs keep the base price, private programs are cheaper, and public programs are more expensive (all multipliers are adjustable).
+    7. **Political Stability Adjustment:** Finally, a political stability multiplier is applied to differentiate between countries with stable conditions and those with war zones or other unstable situations, where vaccination campaigns are more challenging and costly.
+
+    This stepwise approach ensures that all major factors influencing vaccination costs are considered and can be adjusted by the user for scenario analysis.
     """)
     
     st.markdown('<div class="methodology-section">Calculation Steps</div>', unsafe_allow_html=True)
@@ -90,24 +99,18 @@ def render_tab(national_df):
     
     st.markdown('<div class="methodology-section">Data Sources</div>', unsafe_allow_html=True)
     st.markdown("""
-    **Population data:** FAO. 2023. FAOSTAT Statistical Database. Food and Agriculture Organization of the United Nations. 
-    Available at: [https://www.fao.org/faostat/en/](https://www.fao.org/faostat/en/)
+    ^1^ **Population data:** FAO. 2023. FAOSTAT Statistical Database. Food and Agriculture Organization of the United Nations.  
+    Available at: https://www.fao.org/faostat/en/
 
-    **Livestock density data:** FAO. 2024. Gridded Livestock of the World (GLW) 4: Gridded Livestock Density 
-    (Global - 2020 - 10 km). Food and Agriculture Organization of the United Nations. Available at: 
-    [https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704](https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704)
+    ^2^ **Livestock density data:** FAO. 2024. Gridded Livestock of the World (GLW) 4: Gridded Livestock Density (Global - 2020 - 10 km). Food and Agriculture Organization of the United Nations.  
+    Available at: https://data.apps.fao.org/catalog/dataset/15f8c56c-5499-45d5-bd89-59ef6c026704
 
-    **Vaccination cost data:** The document draws from peer-reviewed studies and field cost estimates on Peste des Petits 
-    Ruminants (PPR) vaccination programs in Africa. Key cited sources include:
-
-    - **Ethiopia:** Lyons NA et al., Prev Vet Med. 2019 – Field-derived cost estimates of PPR vaccination in Ethiopia. 
-    [DOI: 10.1016/j.prevetmed.2018.12.007]
-    - **Burkina Faso, Senegal, Nigeria:** Ilboudo GS et al., Animals (Basel). 2022 – PPR vaccination cost estimates in 
-    Burkina Faso. [DOI: 10.3390/ani12162152]
+    **Vaccination cost data:** The document draws from peer-reviewed studies and field cost estimates on Peste des Petits Ruminants (PPR) vaccination programs in Africa. Key cited sources include:
+    - **Ethiopia:** Lyons NA et al., Prev Vet Med. 2019 – Field-derived cost estimates of PPR vaccination in Ethiopia. [DOI: 10.1016/j.prevetmed.2018.12.007]
+    - **Burkina Faso, Senegal, Nigeria:** Ilboudo GS et al., Animals (Basel). 2022 – PPR vaccination cost estimates in Burkina Faso. [DOI: 10.3390/ani12162152]
     - **Somalia:** Jue S et al., Pastoralism. 2018 – Sero-prevalence and vaccination cost analysis.
 
-    **Political stability data:** TheGlobalEconomy.com. 2024. Political stability index for Africa. Available at: 
-    [https://www.theglobaleconomy.com/rankings/wb_political_stability/Africa/](https://www.theglobaleconomy.com/rankings/wb_political_stability/Africa/)
+    **Political stability data:** TheGlobalEconomy.com. 2024. Political stability index for Africa. Available at: https://www.theglobaleconomy.com/rankings/wb_political_stability/Africa/
 
     **Additional sources:**
     - VADEMOS tool (forecasting)

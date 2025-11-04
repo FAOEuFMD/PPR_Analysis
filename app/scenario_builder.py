@@ -219,22 +219,24 @@ def render_tab(subregions_df):
     This tool allows you to create targeted vaccination scenarios by adjusting parameters in the sidebar and selecting specific countries and regions for analysis. Use the sidebar controls to modify coverage rates, regional costs, political stability factors, and delivery channels - all calculations will update automatically across all tabs. Below, you can select particular countries and their subnational regions to focus your analysis on specific geographic areas, such as border regions, episystems, or outbreak-prone zones. The results table will show vaccination costs and logistics only for your selected areas.
 
     **Tab Guide:**
-    - **Episystems**: Analyze vaccination scenarios for the eight transboundary epidemiological systems in Africa, focusing on cross-border animal movement patterns and disease risk factors
-    - **Continental Overview**: Total vaccination impact across all of Africa
-    - **Regions & Countries**: Breakdown by African regions and individual countries  
+    - **Episystems**: Use this tab to analyze vaccination scenarios for the eight transboundary epidemiological systems in Africa, focusing on cross-border animal movement patterns and disease risk factors
+    - **Continental Overview**: Use this tab to see mass vaccination impact across all of Africa
+    - **Regions & Countries**: This tab just breaks down the continental vaccination by African regions and individual countries  
     - **Subregions**: Detailed view of subnational areas within a single country
+    - **Methodology and Data Sources**: Read about the data and methodology used in this tool          
     - **Scenario Builder** (this tab): Create custom scenarios by selecting specific countries/regions
     """)
 
-    st.markdown("---")
-    st.markdown("**Select Countries and Subnational Regions for Custom Scenario:**")
+    st.markdown(""" 
+
+    Below, you can select particular countries and their subnational regions to focus your analysis on specific geographic areas, such as border regions, episystems, or outbreak-prone zones. The results table will show vaccination costs for your selected areas.
+    """)
     # Load countries once and cache
     if "available_countries" not in st.session_state:
         st.session_state.available_countries = sorted(subregions_df["Country"].unique())
-    
     selected_countries = st.multiselect(
-        "Select Countries:", 
-        st.session_state.available_countries, 
+        "Select Countries:",
+        st.session_state.available_countries,
         key="scenario_countries"
     )
     selected_regions_data = []
@@ -346,8 +348,17 @@ def display_scenario_results(selected_regions_data):
                     population = base_population
                     coverage = params['coverage_rate']
                     wastage = params['wastage_rate']
-                    cost_per_animal = params['cost_per_animal']
-                    psi = params['psi']  # Use PSI from user input
+                    region = data.get('Region', 'West Africa')
+                    cost_per_animal = st.session_state.get(f"cost_slider_{region}", 0.25)
+                    # --- FIX: Get PSI index for country and apply correct multiplier ---
+                    psi_index = None
+                    if 'PSI' in data:
+                        psi_index = float(data['PSI'])
+                    elif 'psi_index' in data:
+                        psi_index = float(data['psi_index'])
+                    else:
+                        # fallback: try config or set to 0.5 (medium risk)
+                        psi_index = st.session_state.get('country_psi', {}).get(data.get('Country'), 0.5)
                     delivery = params['delivery_channel']
                     species = data.get('Specie') or data.get('Species', 'Unknown')
                     
@@ -356,7 +367,7 @@ def display_scenario_results(selected_regions_data):
                         vacc_init = vaccinated_initial(population, coverage)
                         doses = doses_required(vacc_init, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
+                        pol_mult = political_multiplier(psi_index)
                         del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {
@@ -372,7 +383,7 @@ def display_scenario_results(selected_regions_data):
                         vacc_y2 = second_year_coverage(new_animals)
                         doses = doses_required(vacc_y2, wastage)
                         cost_adj = cost_before_adj(doses, cost_per_animal)
-                        pol_mult = political_multiplier(psi)
+                        pol_mult = political_multiplier(psi_index)
                         del_mult = delivery_channel_multiplier(delivery)
                         final_cost = total_cost(cost_adj, pol_mult, del_mult)
                         return {
@@ -415,7 +426,8 @@ def display_scenario_results(selected_regions_data):
     total_wasted_y2 = results_df["Wasted Y2"].sum()
     total_cost_y1 = results_df["Cost Y1"].sum()
     total_cost_y2 = results_df["Cost Y2"].sum()
-    total_campaign_cost = total_cost_y1 + total_cost_y2
+    total_cost_y3 = total_cost_y2 * 0.15
+    total_campaign_cost = total_cost_y1 + total_cost_y2 + total_cost_y3
 
     config = st.session_state.get('config', {})
     region_costs = {
@@ -434,7 +446,9 @@ def display_scenario_results(selected_regions_data):
                     ${:,.2f}
                 </div>
                 <div style='font-size:1.1em; color:#666; margin-top:10px;'>
-                    Year 1: ${:,.2f} &nbsp;|&nbsp; Year 2: ${:,.2f}
+                    Year 1: ${:,.2f}<br>
+                    Year 2: ${:,.2f}<br>
+                    Year 3: ${:,.2f}
                 </div>
             </div>
             <div style='display:flex; flex:2;'>
@@ -465,7 +479,7 @@ def display_scenario_results(selected_regions_data):
         </div>
     </div>
     """.format(
-        total_campaign_cost, total_cost_y1, total_cost_y2,
+        total_campaign_cost, total_cost_y1, total_cost_y2, total_cost_y3,
         region_costs['North Africa'],
         region_costs['West Africa'],
         region_costs['Central Africa'],

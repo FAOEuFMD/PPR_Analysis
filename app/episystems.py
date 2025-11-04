@@ -44,7 +44,7 @@ def render_tab(subregions_df):
     col1, col2 = st.columns([1,1])
     
     with col1:
-        st.image("./public/pprepisystems.png", caption="PPR Episystems in Africa", width="stretch")
+        st.image("./public/pprepisystems.png", caption="PPR Episystems in Africa", width=800)
     
     with col2:
         st.markdown("""
@@ -299,10 +299,11 @@ def display_scenario_results(selected_regions_data, episystems_data):
     total_cost_y2 = results_df["Cost Y2"].sum()
     
     # Display campaign summary in styled containers
-    st.markdown("### Campaign Overview")
 
+    st.markdown("### Campaign Overview")
     config = st.session_state.get('config', {})
-    total_campaign_cost = total_cost_y1 + total_cost_y2
+    total_cost_y3 = total_cost_y2 * 0.15
+    total_campaign_cost = total_cost_y1 + total_cost_y2 + total_cost_y3
     region_costs = {
         'North Africa': f"${st.session_state.get('cost_slider_North Africa', '')}",
         'West Africa': f"${st.session_state.get('cost_slider_West Africa', '')}",
@@ -310,65 +311,85 @@ def display_scenario_results(selected_regions_data, episystems_data):
         'East Africa': f"${st.session_state.get('cost_slider_East Africa', '')}",
         'Southern Africa': f"${st.session_state.get('cost_slider_Southern Africa', '')}"
     }
-    st.markdown("""
+    st.markdown(f"""
     <div style='background-color:#f0f2f6; padding:20px; border-radius:10px; margin:20px 0;'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
             <div style='text-align:left; flex:1;'>
                 <div style='font-size:1.4em; font-weight:600; margin-bottom:10px;'>Total Campaign Cost</div>
                 <div style='font-size:2em; font-weight:700; color:#0066cc;'>
-                    ${:,.2f}
+                    ${total_campaign_cost:,.2f}
                 </div>
                 <div style='font-size:1.1em; color:#666; margin-top:10px;'>
-                    Year 1: ${:,.2f} &nbsp;|&nbsp; Year 2: ${:,.2f}
+                    Year 1: ${total_cost_y1:,.2f}<br>
+                    Year 2: ${total_cost_y2:,.2f}<br>
+                    Year 3: ${total_cost_y3:,.2f}
                 </div>
             </div>
             <div style='display:flex; flex:2;'>
                 <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
                     <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Regional Costs:</div>
                     <div style='font-size:1em; color:#444;'>
-                        <div style='margin-bottom:8px;'><b>North Africa:</b> {}</div>
-                        <div style='margin-bottom:8px;'><b>West Africa:</b> {}</div>
-                        <div style='margin-bottom:8px;'><b>Central Africa:</b> {}</div>
-                        <div style='margin-bottom:8px;'><b>East Africa:</b> {}</div>
-                        <div style='margin-bottom:8px;'><b>Southern Africa:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>North Africa:</b> {region_costs['North Africa']}</div>
+                        <div style='margin-bottom:8px;'><b>West Africa:</b> {region_costs['West Africa']}</div>
+                        <div style='margin-bottom:8px;'><b>Central Africa:</b> {region_costs['Central Africa']}</div>
+                        <div style='margin-bottom:8px;'><b>East Africa:</b> {region_costs['East Africa']}</div>
+                        <div style='margin-bottom:8px;'><b>Southern Africa:</b> {region_costs['Southern Africa']}</div>
                     </div>
                 </div>
                 <div style='flex:1; border-left:1px solid #ddd; padding-left:20px;'>
                     <div style='font-size:1.2em; font-weight:600; margin-bottom:10px;'>Scenario Parameters:</div>
                     <div style='font-size:1em; color:#444;'>
-                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {}%</div>
-                        <div style='margin-bottom:8px;'><b>Newborn Rates:</b> Goats: {}%, Sheep: {}%</div>
-                        <div style='margin-bottom:8px;'><b>Second Year Coverage:</b> {}%</div>
-                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {}%</div>
-                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {} (Public: {}, Mixed: {}, Private: {})</div>
-                        <div style='margin-bottom:8px;'><b>Political Stability Risk:</b> High: {}, Moderate: {}, Low: {}</div>
-                        <div style='margin-bottom:8px;'><b>PSI Index:</b> {}</div>
+                        <div style='margin-bottom:8px;'><b>Coverage Target:</b> {config.get('coverage', 0)}%</div>
+                        <div style='margin-bottom:8px;'><b>Newborn Rates:</b> Goats: {config.get('newborn_goats', 0)}%, Sheep: {config.get('newborn_sheep', 0)}%</div>
+                        <div style='margin-bottom:8px;'><b>Second Year Coverage:</b> {config.get('second_year_coverage', 0)}%</div>
+                        <div style='margin-bottom:8px;'><b>Wastage Rate:</b> {config.get('wastage', 0)}%</div>
+                        <div style='margin-bottom:8px;'><b>Delivery Channel:</b> {config.get('delivery_channel', '')} (Public: {config.get('delivery_multipliers', {}).get('Public', '')}, Mixed: {config.get('delivery_multipliers', {}).get('Mixed', '')}, Private: {config.get('delivery_multipliers', {}).get('Private', '')})</div>
+                        <div style='margin-bottom:8px;'><b>Political Stability Risk:</b> High: {config.get('political_stability', {}).get('mult_high_risk', '')}, Moderate: {config.get('political_stability', {}).get('mult_moderate_risk', '')}, Low: {config.get('political_stability', {}).get('mult_low_risk', '')}</div>
+                        <div style='margin-bottom:8px;'><b>PSI Index:</b> {config.get('psi', '')}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    """.format(
-        total_campaign_cost, total_cost_y1, total_cost_y2,
-        region_costs['North Africa'],
-        region_costs['West Africa'],
-        region_costs['Central Africa'],
-        region_costs['East Africa'],
-        region_costs['Southern Africa'],
-        config.get('coverage', 0),
-        config.get('newborn_goats', 0),
-        config.get('newborn_sheep', 0),
-        config.get('second_year_coverage', 0),
-        config.get('wastage', 0),
-        config.get('delivery_channel', ''),
-        config.get('delivery_multipliers', {}).get('Public', ''),
-        config.get('delivery_multipliers', {}).get('Mixed', ''),
-        config.get('delivery_multipliers', {}).get('Private', ''),
-        config.get('political_stability', {}).get('mult_high_risk', ''),
-        config.get('political_stability', {}).get('mult_moderate_risk', ''),
-        config.get('political_stability', {}).get('mult_low_risk', ''),
-        config.get('psi', '')
-    ), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+    # KPI Info Boxes for Year 1
+    cols_y1 = st.columns(3)
+    with cols_y1[0]:
+        st.markdown(f'<div class="kpi-card">Total Animals Vaccinated (Y1)<br><b>{int(total_animals_y1):,}</b></div>', unsafe_allow_html=True)
+    with cols_y1[1]:
+        st.markdown(f'<div class="kpi-card">Goats Vaccinated (Y1)<br><b>{int(results_df["Goats Y1"].sum()):,}</b></div>', unsafe_allow_html=True)
+    with cols_y1[2]:
+        st.markdown(f'<div class="kpi-card">Sheep Vaccinated (Y1)<br><b>{int(results_df["Sheep Y1"].sum()):,}</b></div>', unsafe_allow_html=True)
+
+    cols_y1b = st.columns(3)
+    with cols_y1b[0]:
+        st.markdown(f'<div class="kpi-card">Total Cost (Y1)<br><b>${total_cost_y1:,.2f}</b></div>', unsafe_allow_html=True)
+    with cols_y1b[1]:
+        st.markdown(f'<div class="kpi-card">Total Doses Required (Y1)<br><b>{int(total_doses_y1):,}</b></div>', unsafe_allow_html=True)
+    with cols_y1b[2]:
+        st.markdown(f'<div class="kpi-card">Vaccines Wasted (Y1)<br><b>{int(total_wasted_y1):,}</b></div>', unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # KPI Info Boxes for Year 2
+    cols_y2 = st.columns(3)
+    with cols_y2[0]:
+        st.markdown(f'<div class="kpi-card">Total Animals Vaccinated (Y2)<br><b>{int(total_animals_y2):,}</b></div>', unsafe_allow_html=True)
+    with cols_y2[1]:
+        st.markdown(f'<div class="kpi-card">Goats Vaccinated (Y2)<br><b>{int(results_df["Goats Y2"].sum()):,}</b></div>', unsafe_allow_html=True)
+    with cols_y2[2]:
+        st.markdown(f'<div class="kpi-card">Sheep Vaccinated (Y2)<br><b>{int(results_df["Sheep Y2"].sum()):,}</b></div>', unsafe_allow_html=True)
+
+    cols_y2b = st.columns(3)
+    with cols_y2b[0]:
+        st.markdown(f'<div class="kpi-card">Total Cost (Y2)<br><b>${total_cost_y2:,.2f}</b></div>', unsafe_allow_html=True)
+    with cols_y2b[1]:
+        st.markdown(f'<div class="kpi-card">Total Doses Required (Y2)<br><b>{int(total_doses_y2):,}</b></div>', unsafe_allow_html=True)
+    with cols_y2b[2]:
+        st.markdown(f'<div class="kpi-card">Vaccines Wasted (Y2)<br><b>{int(total_wasted_y2):,}</b></div>', unsafe_allow_html=True)
+
+    st.markdown("---")
     
     # Create episystem level aggregation
     st.markdown("---")
@@ -390,65 +411,47 @@ def display_scenario_results(selected_regions_data, episystems_data):
     
     # Aggregate by episystem
     episystem_agg = results_df_copy.groupby('Episystem').agg({
-        'Total Y1': 'sum',
         'Cost Y1': 'sum',
-        'Doses Y1': 'sum',
-        'Wasted Y1': 'sum',
-        'Total Y2': 'sum',
-        'Cost Y2': 'sum',
-        'Doses Y2': 'sum',
-        'Wasted Y2': 'sum'
+        'Cost Y2': 'sum'
     }).reset_index()
 
-    # Add Total Campaign Cost column (Cost Y1 + Cost Y2)
-    episystem_agg['Total Campaign Cost'] = episystem_agg['Cost Y1'] + episystem_agg['Cost Y2']
-    # Reorder columns to put Episystem first, then Total Campaign Cost
-    episystem_agg = episystem_agg[['Episystem', 'Total Campaign Cost', 'Total Y1', 'Cost Y1', 'Doses Y1', 'Wasted Y1', 'Total Y2', 'Cost Y2', 'Doses Y2', 'Wasted Y2']]
+    # Add Cost Y3 (15% of Cost Y2) and Total Cost columns
+    episystem_agg['Cost Y3'] = episystem_agg['Cost Y2'] * 0.15
+    episystem_agg['Total Cost'] = episystem_agg['Cost Y1'] + episystem_agg['Cost Y2'] + episystem_agg['Cost Y3']
 
-    # Format numeric columns for display (no decimals)
-    def format_no_decimals(val):
-        try:
-            return f"{int(round(float(val))):,}"
-        except Exception:
-            return val
+    # Reorder columns
+    episystem_agg = episystem_agg[['Episystem', 'Total Cost', 'Cost Y1', 'Cost Y2', 'Cost Y3']]
 
-    episystem_display = episystem_agg.copy()
-    for col in ['Total Y1', 'Doses Y1', 'Wasted Y1', 'Total Y2', 'Doses Y2', 'Wasted Y2']:
-        episystem_display[col] = episystem_display[col].apply(format_no_decimals)
-    for col in ['Cost Y1', 'Cost Y2', 'Total Campaign Cost']:
-        episystem_display[col] = episystem_display[col].apply(lambda x: f"${int(round(float(x))):,}" if pd.notnull(x) else "$0")
+    # Format numeric columns for display
+    for col in ['Total Cost', 'Cost Y1', 'Cost Y2', 'Cost Y3']:
+        episystem_agg[col] = episystem_agg[col].apply(lambda x: f"${x:,.2f}" if pd.notnull(x) else "$0")
 
     # Add total row at the bottom
     total_row = {
         'Episystem': 'Total',
-        'Total Campaign Cost': f"${int(round(episystem_agg['Total Campaign Cost'].sum())):,}",
-        'Total Y1': format_no_decimals(episystem_agg['Total Y1'].sum()),
-        'Cost Y1': f"${int(round(episystem_agg['Cost Y1'].sum())):,}",
-        'Doses Y1': format_no_decimals(episystem_agg['Doses Y1'].sum()),
-        'Wasted Y1': format_no_decimals(episystem_agg['Wasted Y1'].sum()),
-        'Total Y2': format_no_decimals(episystem_agg['Total Y2'].sum()),
-        'Cost Y2': f"${int(round(episystem_agg['Cost Y2'].sum())):,}",
-        'Doses Y2': format_no_decimals(episystem_agg['Doses Y2'].sum()),
-        'Wasted Y2': format_no_decimals(episystem_agg['Wasted Y2'].sum())
+        'Total Cost': f"${results_df_copy['Cost Y1'].sum() + results_df_copy['Cost Y2'].sum() + results_df_copy['Cost Y2'].sum() * 0.15:,.2f}",
+        'Cost Y1': f"${results_df_copy['Cost Y1'].sum():,.2f}",
+        'Cost Y2': f"${results_df_copy['Cost Y2'].sum():,.2f}",
+        'Cost Y3': f"${results_df_copy['Cost Y2'].sum() * 0.15:,.2f}"
     }
-    episystem_display = pd.concat([episystem_display, pd.DataFrame([total_row])], ignore_index=True)
+    episystem_agg = pd.concat([episystem_agg, pd.DataFrame([total_row])], ignore_index=True)
 
-    st.dataframe(episystem_display, width="stretch")
+    st.dataframe(episystem_agg, width=1400)
 
     # Bar chart of total cost per episystem (exclude total row)
     import plotly.express as px
-    chart_df = episystem_display[episystem_display['Episystem'] != 'Total'].copy()
-    chart_df['Total Campaign Cost (USD)'] = chart_df['Total Campaign Cost'].replace({'\$': '', ',': ''}, regex=True).astype(float)
+    chart_df = episystem_agg[episystem_agg['Episystem'] != 'Total'].copy()
+    chart_df['Total Cost (USD)'] = chart_df['Total Cost'].replace({'\$': '', ',': ''}, regex=True).astype(float)
     fig = px.bar(
         chart_df,
         x='Episystem',
-        y='Total Campaign Cost (USD)',
+        y='Total Cost (USD)',
         title='Total Campaign Cost per Episystem',
-        labels={'Total Campaign Cost (USD)': 'Total Campaign Cost (USD)', 'Episystem': 'Episystem'},
+        labels={'Total Cost (USD)': 'Total Campaign Cost (USD)', 'Episystem': 'Episystem'},
         text_auto='.2s'
     )
     fig.update_layout(xaxis_title='Episystem', yaxis_title='Total Campaign Cost (USD)', showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
     # Display detailed results
     st.markdown("---")
@@ -475,4 +478,4 @@ def display_scenario_results(selected_regions_data, episystems_data):
     results_display_df['Cost Y2'] = results_display_df['Cost Y2'].apply(lambda x: f"${float(x):,.2f}" if pd.notnull(x) else "$0.00")
     results_display_df['Total Campaign Cost'] = results_display_df['Total Campaign Cost'].apply(lambda x: f"${float(x):,.2f}" if pd.notnull(x) else "$0.00")
 
-    st.dataframe(results_display_df, width="stretch")
+    st.dataframe(results_display_df, width=1400)

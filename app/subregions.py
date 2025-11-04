@@ -208,6 +208,6 @@ def render_tab(subregions_df, national_df):
         ]
         
         subregion_display_df = format_table_values(subregion_table_df[display_cols], numeric_cols)
-        st.dataframe(subregion_display_df, height=len(subregion_table)*35+40, width="stretch")
+        st.dataframe(subregion_display_df, height=len(subregion_table)*35+40, width=1400)
     else:
         st.info(f"No data available for {selected_country}'s subregions.")

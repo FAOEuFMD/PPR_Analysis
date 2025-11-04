@@ -61,8 +61,7 @@ This Streamlit dashboard estimates the cost of continental PPR (Peste des Petits
    python -m venv venv
    # On Windows (cmd):
    venv\Scripts\activate
-   # On Windows (PowerShell):
-   .\venv\Scripts\Activate.ps1
+  
    # On macOS/Linux:
    source venv/bin/activate
    ```
